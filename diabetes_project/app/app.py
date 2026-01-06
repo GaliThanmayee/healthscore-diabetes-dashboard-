@@ -5,12 +5,13 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
 
-
 st.set_page_config(
-    page_title="HealthScore – Diabetes Risk Dashboard",
-    page_icon="⚖️",
-    layout="wide"
+    page_title="Diabetes Risk Prediction Dashboard",
+    page_icon="⚕️",
+    layout="centered",  # CHANGE: "wide" to "centered"
+    initial_sidebar_state="collapsed"  # OPTIONAL: Collapsed sidebar
 )
+
 st.markdown("""
 <style>
 * { font-size: 0.75rem !important; }

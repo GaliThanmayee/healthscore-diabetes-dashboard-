@@ -230,9 +230,10 @@ footer, .stCaption {
 
 
 st.markdown(
-    "<div id='top-bar'>HealthScore AI · Diabetes Risk Intelligence Dashboard</div>",
+    "<div id='top-bar'>GlucoGuard · Diabetes Risk Intelligence Dashboard</div>",
     unsafe_allow_html=True,
 )
+
 
 @st.cache_data
 def train_model():

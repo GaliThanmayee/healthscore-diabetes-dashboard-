@@ -230,6 +230,12 @@ def train_model():
         + np.random.normal(0, 0.2, n)
     ).clip(0, 1)
     y = (np.random.random(n) < y).astype(int)
+/* BMI +/- spinner buttons (visible) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: auto !important;
+    background: #ffffff !important;
+    color
 
     scaler = StandardScaler()
     X = scaler.fit_transform(

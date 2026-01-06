@@ -11,6 +11,20 @@ st.set_page_config(
     page_icon="⚖️",
     layout="wide"
 )
+st.markdown("""
+<style>
+* { font-size: 0.75rem !important; }
+h1 { font-size: 1.1rem !important; }
+h2 { font-size: 1.0rem !important; }
+.tall-metric { 
+    padding: 12px 10px !important;
+    min-height: 140px !important;
+}
+.tall-metric-main { font-size: 1.4rem !important; }
+.main .block-container { max-width: 1000px !important; }
+</style>
+""", unsafe_allow_html=True)
+
 
 
 st.markdown("""
@@ -229,10 +243,7 @@ footer, .stCaption {
 """, unsafe_allow_html=True)
 
 
-st.markdown(
-    "<div id='top-bar'>HealthScore AI · Diabetes Risk Intelligence Dashboard</div>",
-    unsafe_allow_html=True,
-)
+st.markdown("<div id='top-bar'>Diabetes Risk Prediction Dashboard</div>", unsafe_allow_html=True)
 
 @st.cache_data
 def train_model():

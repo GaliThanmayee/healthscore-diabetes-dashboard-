@@ -104,13 +104,14 @@ input[type="number"] {
     color: #111827 !important;
 }
 
-/* BMI +/- spinner buttons (visible with dark background) */
+/* BMI +/- spinner buttons (LIGHT/TRANSPARENT - no black) */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: auto !important;
     appearance: auto !important;
-    background-color: #111827 !important;
-    color: #ffffff !important;
+    background-color: rgba(255,255,255,0.9) !important;
+    border: 1px solid #d4d4d8 !important;
+    color: #111827 !important;
     opacity: 1 !important;
 }
 
@@ -177,7 +178,7 @@ input[type="number"]::-webkit-inner-spin-button {
 .risk-med  { color: #c05621 !important; font-weight: 800; }
 .risk-low  { color: #15803d !important; font-weight: 800; }
 
-/* Tabs */
+/* ---- Tabs ---- */
 .stTabs [data-baseweb="tab-list"] { gap: 6px; }
 .stTabs [data-baseweb="tab"] {
     border-radius: 999px;
@@ -188,15 +189,27 @@ input[type="number"]::-webkit-inner-spin-button {
     font-weight: 600;
 }
 
-/* Dataframe */
+/* ---- Graphs - add spacing and reduce size ---- */
+[data-testid="stPlotlyContainer"] {
+    margin-bottom: 2rem !important;
+    padding: 1rem 0 !important;
+}
+
+/* Smaller Plotly charts */
+.plotly-graph-div {
+    max-height: 350px !important;
+}
+
+/* ---- Dataframe ---- */
 [data-testid="stDataFrame"] {
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 10px 28px rgba(15,23,42,0.22);
     background-color: #ffffff;
+    margin: 1.5rem 0 !important;
 }
 
-/* Buttons */
+/* ---- Buttons ---- */
 .stButton>button, .stDownloadButton>button {
     border-radius: 999px;
     padding: 0.6rem 1.5rem;
@@ -210,6 +223,11 @@ input[type="number"]::-webkit-inner-spin-button {
 /* Success/info/warning boxes: readable */
 .stAlert, .stSuccess, .stInfo, .stWarning, .stError {
     color: #111827 !important;
+}
+
+/* ---- Columns spacing ---- */
+.stColumn {
+    padding: 0 0.5rem !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -423,7 +441,7 @@ st.divider()
 tab1, tab2, tab3 = st.tabs(["📊 Risk Overview", "🔍 Health Profile", "🛡️ Recommendations"])
 
 with tab1:
-    col1, col2 = st.columns([1, 1.4])
+    col1, col2 = st.columns([1.2, 1.3])
 
     with col1:
         st.subheader("Probability Distribution")
@@ -444,24 +462,25 @@ with tab1:
             )
         )
         fig_gauge.update_layout(
-            height=300,
-            margin=dict(l=10, r=10, t=50, b=10),
+            height=280,
+            margin=dict(l=10, r=10, t=40, b=10),
             paper_bgcolor="rgba(0,0,0,0)",
-            font=dict(size=14, color="#111827"),
+            font=dict(size=12, color="#111827"),
         )
         st.plotly_chart(fig_gauge, use_container_width=True)
 
     with col2:
-        st.subheader("Risk Factor Contribution (Heuristic)")
+        st.subheader("Risk Factor Contribution")
         risk_drivers = pd.DataFrame(
             {
                 "Factor": ["BMI", "Age", "Gen Health", "Phys Health", "Smoking"],
                 "Impact": [bmi / 60, age / 13, gen_hlth / 5, phys_hlth / 30, int(smoker) * 0.5],
             }
         )
-        st.bar_chart(risk_drivers.set_index("Factor"), height=300)
+        st.bar_chart(risk_drivers.set_index("Factor"), height=280)
 
     st.markdown("*Note: Factor 'Impact' is a simplified score for illustration, not a calibrated clinical measure.*")
+    st.markdown("")
 
 with tab2:
     st.subheader("Health Profile Analysis")
@@ -585,4 +604,3 @@ st.markdown(
 )
 
 st.caption("🎓 University of Europe Capstone · Educational Screening Tool")
-

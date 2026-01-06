@@ -99,18 +99,15 @@ input[type="number"] {{
     color: #111827 !important;
 }}
 
-/* BMI +/- SPINNER BUTTONS: HIDE COMPLETELY */
-input[type="number"] {
-    -moz-appearance: textfield !important;
-}
-
+/* BMI +/- SPINNER BUTTONS: WHITE TEXT ON DARK BACKGROUND */
 input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none !important;
-    margin: 0 !important;
-    display: none !important;
-}
-
+input[type="number"]::-webkit-inner-spin-button {{
+    -webkit-appearance: auto !important;
+    appearance: auto !important;
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+}}
 
 /* ---- Select boxes ---- */
 [data-baseweb="select"] > div {{

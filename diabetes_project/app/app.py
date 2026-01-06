@@ -4,58 +4,39 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
+
 st.set_page_config(
     page_title="Diabetes Risk Prediction Dashboard",
     page_icon="⚕️",
     layout="wide"
 )
 
-
-st.markdown("""
-<style>
-* { font-size: 0.75rem !important; }
-h1 { font-size: 1.1rem !important; }
-h2 { font-size: 1.0rem !important; }
-.tall-metric { 
-    padding: 12px 10px !important;
-    min-height: 140px !important;
-}
-.tall-metric-main { font-size: 1.4rem !important; }
-.main .block-container { max-width: 1000px !important; }
-</style>
-""", unsafe_allow_html=True)
-
-
-
+# --- SINGLE, CLEANED CSS BLOCK ---
 st.markdown("""
 <style>
 /* ===== GLOBAL ===== */
 .stApp {
-    /* clean gradient background, no photo */
     background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%);
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* Bigger, dark text everywhere */
-html, body, div, span, label, p, h1, h2, h3, h4, h5, h6 {
-    color: #000000 !important;
-}
+/* Slightly larger base text without forcing everything */
 html, body, [class*="css"] {
-    font-size: 19px !important;
+    font-size: 16px;
 }
 
 /* Stronger headings */
 h1 {
-    font-size: 2.3rem !important;
-    font-weight: 800 !important;
+    font-size: 2.2rem;
+    font-weight: 800;
 }
 h2 {
-    font-size: 1.7rem !important;
-    font-weight: 700 !important;
+    font-size: 1.6rem;
+    font-weight: 700;
 }
 h3 {
-    font-size: 1.4rem !important;
-    font-weight: 650 !important;
+    font-size: 1.3rem;
+    font-weight: 650;
 }
 
 /* ===== TOP BAR ===== */
@@ -74,7 +55,8 @@ h3 {
     font-size: 0.95rem;
 }
 .main .block-container {
-    padding-top: 60px;  /* push content below top bar */
+    padding-top: 60px;   /* push content below top bar */
+    max-width: 1200px;   /* better fit for 4 KPI cards */
 }
 
 /* ===== SIDEBAR (Patient Profile) ===== */
@@ -83,13 +65,13 @@ section[data-testid="stSidebar"] {
     border-right: 1px solid #d4d4d8;
 }
 section[data-testid="stSidebar"] h1 {
-    font-size: 1.5rem !important;
+    font-size: 1.5rem;
 }
 section[data-testid="stSidebar"] label {
-    font-size: 1.05rem !important;
+    font-size: 1.0rem;
 }
 
-/* Expander boxes: soft card */
+/* Expander boxes */
 div[data-testid="stExpander"] {
     border-radius: 16px;
     margin-bottom: 0.8rem;
@@ -98,36 +80,36 @@ div[data-testid="stExpander"] {
     border: 1px solid rgba(148,163,184,0.4);
 }
 div[data-testid="stExpander"] > details > summary {
-    color: #000000 !important;
-    font-size: 1.05rem !important;
+    color: #000000;
+    font-size: 1.0rem;
 }
 
 /* Force light selectbox + dropdown options */
 [data-baseweb="select"] > div {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    border-radius: 12px !important;
-    border: 1px solid #d4d4d8 !important;
+    background-color: #ffffff;
+    color: #000000;
+    border-radius: 12px;
+    border: 1px solid #d4d4d8;
 }
 [data-baseweb="select"] span {
-    color: #000000 !important;
+    color: #000000;
 }
 [data-baseweb="popover"] [role="listbox"] {
-    background-color: #ffffff !important;
-    color: #000000 !important;
+    background-color: #ffffff;
+    color: #000000;
 }
 [data-baseweb="popover"] [role="option"] {
-    background-color: #ffffff !important;
-    color: #000000 !important;
+    background-color: #ffffff;
+    color: #000000;
 }
 [data-baseweb="popover"] [role="option"]:hover {
-    background-color: #e5f0ff !important;
+    background-color: #e5f0ff;
 }
 
 /* Number input */
 input[type="number"] {
-    background-color: #ffffff !important;
-    color: #000000 !important;
+    background-color: #ffffff;
+    color: #000000;
 }
 
 /* ===== HERO (glassmorphism style) ===== */
@@ -139,14 +121,15 @@ input[type="number"] {
     border: 1px solid rgba(148,163,184,0.55);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    color: #000000 !important;
+    color: #000000;
+    max-width: 650px;
 }
 
-/* ===== KPI CARDS (glass cards with icons + top strip) ===== */
+/* ===== KPI CARDS ===== */
 .tall-metric {
     background: rgba(255,255,255,0.82);
     border-radius: 24px;
-    padding: 24px 20px 18px 20px;
+    padding: 20px 18px 16px 18px;
     box-shadow: 0 18px 40px rgba(15,23,42,0.24);
     border: 1px solid rgba(191,219,254,0.9);
     backdrop-filter: blur(10px);
@@ -154,8 +137,8 @@ input[type="number"] {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 220px;
-    color: #000000 !important;
+    min-height: 200px;
+    color: #000000;
     position: relative;
 }
 
@@ -188,18 +171,19 @@ input[type="number"] {
     font-size: 0.9rem;
 }
 .tall-metric-label {
-    font-size: 1.1rem !important;
-    color: #111827 !important;
+    font-size: 1.05rem;
+    color: #111827;
 }
 .tall-metric-main {
     margin-top: 0.75rem;
-    font-size: 2.4rem !important;
+    font-size: 2.0rem; /* a bit smaller to avoid wrapping */
+    line-height: 1.1;
 }
 
 /* Risk colors as accents only */
-.risk-high { color: #b91c1c !important; font-weight: 800; }
-.risk-med  { color: #c05621 !important; font-weight: 800; }
-.risk-low  { color: #15803d !important; font-weight: 800; }
+.risk-high { color: #b91c1c; font-weight: 800; }
+.risk-med  { color: #c05621; font-weight: 800; }
+.risk-low  { color: #15803d; font-weight: 800; }
 
 /* ===== TABS ===== */
 .stTabs [data-baseweb="tab-list"] { gap: 6px; }
@@ -208,9 +192,9 @@ input[type="number"] {
     padding: 8px 24px;
     background: rgba(255,255,255,0.9);
     border: 1px solid rgba(209,213,219,0.9);
-    color: #000000 !important;
-    font-size: 1.05rem !important;
-    font-weight: 600 !important;
+    color: #000000;
+    font-size: 1.0rem;
+    font-weight: 600;
 }
 
 /* ===== DATAFRAME ===== */
@@ -236,12 +220,11 @@ input[type="number"] {
 
 /* ===== CAPTION ===== */
 footer, .stCaption {
-    font-size: 0.9rem !important;
-    color: #000000 !important;
+    font-size: 0.9rem;
+    color: #000000;
 }
 </style>
 """, unsafe_allow_html=True)
-
 
 st.markdown("<div id='top-bar'>Diabetes Risk Prediction Dashboard</div>", unsafe_allow_html=True)
 
@@ -325,7 +308,6 @@ with st.sidebar:
         heart = st.checkbox("Heart Disease")
 
 st.success("✅ Advanced ML model trained | Diabetes Risk Screening")
-
 
 hero_left, hero_right = st.columns([2.2, 1])
 
@@ -634,6 +616,7 @@ with tab3:
             3. General Health: {gen_hlth/5:.1%}
             """
         )
+
 st.divider()
 st.markdown(
     """

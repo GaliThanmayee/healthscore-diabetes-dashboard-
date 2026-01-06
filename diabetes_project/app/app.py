@@ -15,7 +15,7 @@ st.set_page_config(
 # Cache buster
 cache_key = datetime.now().strftime("%Y%m%d%H%M%S")
 
-# ===== CSS (AGGRESSIVE - with !important everywhere) =====
+# ===== CSS =====
 st.markdown(f"""
 <style>
 /* Cache buster: {cache_key} */
@@ -314,7 +314,7 @@ with st.sidebar:
         income = st.select_slider("Income (1–8)", range(1, 9), 5)
 
     with st.expander("🩺 Clinical Metrics", expanded=True):
-        bmi = st.number_input("BMI", 10.0, 60.0, 25.5, 0.1)
+        bmi = st.slider("BMI", 10.0, 60.0, 25.5, 0.1)
         gen_hlth = st.select_slider("General Health (1–5)", range(1, 6), 3)
         high_bp = st.checkbox("High Blood Pressure")
         high_chol = st.checkbox("High Cholesterol")

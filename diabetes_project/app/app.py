@@ -11,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ===== CSS (single block) =====
+# ===== CSS (complete styling) =====
 st.markdown("""
 <style>
 /* ---- App shell ---- */
@@ -89,7 +89,7 @@ div[data-testid="stExpander"] > details > div{
     border-radius: 0 0 16px 16px !important;
 }
 
-/* Inputs */
+/* ---- Input Fields ---- */
 [data-baseweb="select"] > div {
     background-color: #ffffff !important;
     border-radius: 12px !important;
@@ -102,6 +102,16 @@ div[data-testid="stExpander"] > details > div{
 input[type="number"] {
     background-color: #ffffff !important;
     color: #111827 !important;
+}
+
+/* BMI +/- spinner buttons (visible with dark background) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: auto !important;
+    appearance: auto !important;
+    background-color: #111827 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
 }
 
 /* ---- Hero ---- */
@@ -230,12 +240,6 @@ def train_model():
         + np.random.normal(0, 0.2, n)
     ).clip(0, 1)
     y = (np.random.random(n) < y).astype(int)
-/* BMI +/- spinner buttons (visible) */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: auto !important;
-    background: #ffffff !important;
-    color
 
     scaler = StandardScaler()
     X = scaler.fit_transform(
@@ -457,7 +461,7 @@ with tab1:
         )
         st.bar_chart(risk_drivers.set_index("Factor"), height=300)
 
-    st.markdown("*Note: Factor ‘Impact’ is a simplified score for illustration, not a calibrated clinical measure.*")
+    st.markdown("*Note: Factor 'Impact' is a simplified score for illustration, not a calibrated clinical measure.*")
 
 with tab2:
     st.subheader("Health Profile Analysis")
@@ -581,3 +585,4 @@ st.markdown(
 )
 
 st.caption("🎓 University of Europe Capstone · Educational Screening Tool")
+

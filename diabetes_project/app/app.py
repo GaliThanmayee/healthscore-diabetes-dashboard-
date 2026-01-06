@@ -13,10 +13,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# optional: test banner
-st.warning("TEST CHANGE – new smaller layout active")
-
-
 import pandas as pd
 
 import numpy as np

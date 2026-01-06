@@ -10,7 +10,7 @@ st.markdown(
     <style>
     /* Scale the entire Streamlit app down a bit */
     .main {
-        zoom: 0.8;        /* 0.8 = 80% size; try 0.7 for smaller */
+        zoom: 0.7;      
     }
 
     /* Optional: smaller base font for all text */

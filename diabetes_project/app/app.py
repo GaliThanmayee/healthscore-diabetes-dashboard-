@@ -1,11 +1,9 @@
 import streamlit as st
 st.set_page_config(
-    page_title="Diabetes Risk Prediction Dashboard"
-    page_icon="⚕️",  
+    page_title="Diabetes Risk Prediction Dashboard",
+    page_icon="⚕️",
     layout="wide"
 )
-
-st.set_page_config(layout="wide")
 
 st.markdown(
     """

@@ -11,35 +11,34 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- SINGLE, CLEANED CSS BLOCK ---
+# ===== GLOBAL CSS (single block) =====
 st.markdown("""
 <style>
-/* ===== GLOBAL ===== */
+/* ---- App shell ---- */
 .stApp {
     background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%);
+    color: #000000;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* Slightly larger base text without forcing everything */
-html, body, [class*="css"] {
-    font-size: 16px;
-}
-
-/* Stronger headings */
+/* Let Streamlit manage base font size; only tweak headings */
 h1 {
-    font-size: 2.2rem;
+    font-size: 2.3rem;
     font-weight: 800;
+    color: #0f172a;
 }
 h2 {
     font-size: 1.6rem;
     font-weight: 700;
+    color: #111827;
 }
 h3 {
     font-size: 1.3rem;
     font-weight: 650;
+    color: #111827;
 }
 
-/* ===== TOP BAR ===== */
+/* ---- Top bar ---- */
 #top-bar {
     position: fixed;
     top: 0;
@@ -55,11 +54,11 @@ h3 {
     font-size: 0.95rem;
 }
 .main .block-container {
-    padding-top: 60px;   /* push content below top bar */
-    max-width: 1200px;   /* better fit for 4 KPI cards */
+    padding-top: 60px;      /* push content below top bar */
+    max-width: 1200px;      /* so 4 KPI cards fit nicely */
 }
 
-/* ===== SIDEBAR (Patient Profile) ===== */
+/* ---- Sidebar ---- */
 section[data-testid="stSidebar"] {
     background: #f9fafb;
     border-right: 1px solid #d4d4d8;
@@ -71,7 +70,7 @@ section[data-testid="stSidebar"] label {
     font-size: 1.0rem;
 }
 
-/* Expander boxes */
+/* Expander cards */
 div[data-testid="stExpander"] {
     border-radius: 16px;
     margin-bottom: 0.8rem;
@@ -84,7 +83,7 @@ div[data-testid="stExpander"] > details > summary {
     font-size: 1.0rem;
 }
 
-/* Force light selectbox + dropdown options */
+/* Select / inputs */
 [data-baseweb="select"] > div {
     background-color: #ffffff;
     color: #000000;
@@ -105,14 +104,12 @@ div[data-testid="stExpander"] > details > summary {
 [data-baseweb="popover"] [role="option"]:hover {
     background-color: #e5f0ff;
 }
-
-/* Number input */
 input[type="number"] {
     background-color: #ffffff;
     color: #000000;
 }
 
-/* ===== HERO (glassmorphism style) ===== */
+/* ---- Hero card ---- */
 .main-hero {
     padding: 22px 26px;
     border-radius: 22px;
@@ -125,9 +122,9 @@ input[type="number"] {
     max-width: 650px;
 }
 
-/* ===== KPI CARDS ===== */
+/* ---- KPI cards ---- */
 .tall-metric {
-    background: rgba(255,255,255,0.82);
+    background: rgba(255,255,255,0.9);
     border-radius: 24px;
     padding: 20px 18px 16px 18px;
     box-shadow: 0 18px 40px rgba(15,23,42,0.24);
@@ -137,12 +134,12 @@ input[type="number"] {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 200px;
+    min-height: 210px;
     color: #000000;
     position: relative;
 }
 
-/* Colored strip on top of each KPI card */
+/* Top accent strip */
 .tall-metric::before {
     content: "";
     position: absolute;
@@ -154,7 +151,7 @@ input[type="number"] {
     background: linear-gradient(90deg, #0ea5e9, #6366f1);
 }
 
-/* Header row with icon + label */
+/* KPI header row */
 .tall-metric-header {
     display: flex;
     align-items: center;
@@ -176,16 +173,17 @@ input[type="number"] {
 }
 .tall-metric-main {
     margin-top: 0.75rem;
-    font-size: 2.0rem; /* a bit smaller to avoid wrapping */
+    font-size: 2.0rem;
     line-height: 1.1;
+    word-break: break-word;   /* keep “Non‑Diabetic” tidy */
 }
 
-/* Risk colors as accents only */
+/* Risk colors */
 .risk-high { color: #b91c1c; font-weight: 800; }
 .risk-med  { color: #c05621; font-weight: 800; }
 .risk-low  { color: #15803d; font-weight: 800; }
 
-/* ===== TABS ===== */
+/* ---- Tabs ---- */
 .stTabs [data-baseweb="tab-list"] { gap: 6px; }
 .stTabs [data-baseweb="tab"] {
     border-radius: 999px;
@@ -197,7 +195,7 @@ input[type="number"] {
     font-weight: 600;
 }
 
-/* ===== DATAFRAME ===== */
+/* ---- Dataframe ---- */
 [data-testid="stDataFrame"] {
     border-radius: 14px;
     overflow: hidden;
@@ -205,7 +203,7 @@ input[type="number"] {
     background-color: #ffffff;
 }
 
-/* ===== BUTTONS ===== */
+/* ---- Buttons ---- */
 .stButton>button, .stDownloadButton>button {
     border-radius: 999px;
     padding: 0.6rem 1.5rem;
@@ -218,7 +216,7 @@ input[type="number"] {
     filter: brightness(1.06);
 }
 
-/* ===== CAPTION ===== */
+/* ---- Caption ---- */
 footer, .stCaption {
     font-size: 0.9rem;
     color: #000000;
@@ -228,6 +226,7 @@ footer, .stCaption {
 
 st.markdown("<div id='top-bar'>Diabetes Risk Prediction Dashboard</div>", unsafe_allow_html=True)
 
+# ===== Model training =====
 @st.cache_data
 def train_model():
     np.random.seed(42)
@@ -273,6 +272,7 @@ def train_model():
 
 model, scaler = train_model()
 
+# ===== Sidebar: Patient profile =====
 AGE_OPTS = {i: f"Age {18+((i-1)*5)}-{22+((i-1)*5)}" for i in range(1, 14)}
 AGE_OPTS[13] = "Age 80+"
 
@@ -307,6 +307,7 @@ with st.sidebar:
         stroke = st.checkbox("Stroke History")
         heart = st.checkbox("Heart Disease")
 
+# ===== Hero =====
 st.success("✅ Advanced ML model trained | Diabetes Risk Screening")
 
 hero_left, hero_right = st.columns([2.2, 1])
@@ -330,6 +331,7 @@ with hero_right:
 
 st.markdown("")
 
+# ===== Model inference =====
 input_data = {
     "HighBP": int(high_bp),
     "HighChol": int(high_chol),
@@ -367,6 +369,7 @@ elif prob < 0.45:
 else:
     color_class, label = "risk-high", "HIGH RISK 🔴"
 
+# ===== KPI row =====
 c1, c2, c3, c4 = st.columns(4)
 
 with c1:
@@ -439,6 +442,7 @@ with c4:
 
 st.divider()
 
+# ===== Tabs =====
 tab1, tab2, tab3 = st.tabs(["📊 Risk Overview", "🔍 Health Profile", "🛡️ Recommendations"])
 
 with tab1:

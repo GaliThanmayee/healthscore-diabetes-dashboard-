@@ -1,4 +1,9 @@
 import streamlit as st
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+import plotly.graph_objects as go
 
 st.set_page_config(
     page_title="Diabetes Risk Prediction Dashboard",
@@ -6,75 +11,25 @@ st.set_page_config(
     layout="wide"
 )
 
-st.markdown(
-    """
-    <style>
-    /* FORCE SMALLER FONTS - Override everything */
-    * {
-        font-size: 0.85rem !important;
-    }
-    h1 { font-size: 1.3rem !important; }
-    h2 { font-size: 1.2rem !important; }
-    h3 { font-size: 1.1rem !important; }
-    
-    /* Top bar - smaller name */
-    #top-bar {
-        font-size: 1.0rem !important;
-        height: 35px !important;
-    }
-    
-    /* Metrics - smaller numbers */
-    .tall-metric-main {
-        font-size: 1.6rem !important;
-    }
-    .tall-metric-label {
-        font-size: 0.9rem !important;
-    }
-    
-    /* Sidebar labels smaller */
-    section[data-testid="stSidebar"] label {
-        font-size: 0.95rem !important;
-    }
-    
-    /* Keep your glass styling but smaller padding */
-    .tall-metric {
-        padding: 16px 14px !important;
-        min-height: 180px !important;
-    }
-    .main-hero {
-        padding: 16px 20px !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.markdown("<div id='top-bar'>Diabetes Risk Dashboard</div>", unsafe_allow_html=True)
-
-import pandas as pd
-import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-import plotly.graph_objects as go
-
 st.markdown("""
 <style>
-/* Your existing beautiful styling - just smaller */
-.stApp {
-    background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%);
-    font-family: "Inter", sans-serif;
-}
-.main .block-container {
-    padding-top: 50px;
-}
-.tall-metric {
-    background: rgba(255,255,255,0.82);
-    border-radius: 20px;
-    box-shadow: 0 12px 30px rgba(15,23,42,0.2);
-    border: 1px solid rgba(191,219,254,0.8);
-}
+* { font-size: 0.85rem !important; }
+h1 { font-size: 1.3rem !important; }
+h2 { font-size: 1.2rem !important; }
+h3 { font-size: 1.1rem !important; }
+#top-bar { font-size: 1.0rem !important; height: 35px !important; }
+.tall-metric-main { font-size: 1.6rem !important; }
+.tall-metric-label { font-size: 0.9rem !important; }
+section[data-testid="stSidebar"] label { font-size: 0.95rem !important; }
+.tall-metric { padding: 16px 14px !important; min-height: 180px !important; }
+.main-hero { padding: 16px 20px !important; }
+.stApp { background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%); font-family: "Inter", sans-serif; }
+.main .block-container { padding-top: 50px; }
+.tall-metric { background: rgba(255,255,255,0.82); border-radius: 20px; box-shadow: 0 12px 30px rgba(15,23,42,0.2); border: 1px solid rgba(191,219,254,0.8); }
 </style>
 """, unsafe_allow_html=True)
+
+st.markdown("<div id='top-bar'>Diabetes Risk Dashboard</div>", unsafe_allow_html=True)
 
 @st.cache_data
 def train_model():
@@ -145,8 +100,8 @@ hero_left, hero_right = st.columns([2.2, 1])
 with hero_left:
     st.markdown("""
     <div class="main-hero">
-        <h1>⚕️ Diabetes Risk Dashboard</h1>
-        <p>Intelligent risk screening using clinical + lifestyle data. Educational tool only.</p>
+        <h1 style="margin-bottom:0.2rem;">⚕️ Diabetes Risk Dashboard</h1>
+        <p style="margin-top:0.3rem;">Intelligent risk screening using clinical + lifestyle data. Educational tool only.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -164,11 +119,18 @@ X_scaled = scaler.transform(X)
 prob = model.predict_proba(X_scaled)[0, 1]
 pred_class = model.predict(X_scaled)[0]
 
-if prob < 0.20: color_class, label = "risk-low", "LOW RISK ✅"
-elif prob < 0.45: color_class, label = "risk-med", "MODERATE ⚠️"
-else: color_class, label = "risk-high", "HIGH RISK 🔴"
+if prob < 0.20:
+    color_class, label = "risk-low", "LOW RISK ✅"
+    color_hex = "#15803d"
+elif prob < 0.45:
+    color_class, label = "risk-med", "MODERATE ⚠️"
+    color_hex = "#c05621"
+else:
+    color_class, label = "risk-high", "HIGH RISK 🔴"
+    color_hex = "#b91c1c"
 
 c1, c2, c3, c4 = st.columns(4)
+
 with c1:
     st.markdown(f"""
     <div class="tall-metric">
@@ -176,18 +138,19 @@ with c1:
             <div style="width:28px;height:28px;background:#e0f2fe;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">📊</div>
             <div>Risk Score</div>
         </div>
-        <div style="font-size:1.6rem;font-weight:800;margin-top:0.5rem;">{prob:.1%}</div>
+        <div style="font-size:1.6rem;font-weight:800;margin-top:0.5rem;color:{color_hex};">{prob:.1%}</div>
     </div>
     """, unsafe_allow_html=True)
 
 with c2:
+    pred_text = "Non-Diabetic" if pred_class == 0 else "Diabetic"
     st.markdown(f"""
     <div class="tall-metric">
         <div style="display:flex;gap:0.4rem;align-items:center;">
             <div style="width:28px;height:28px;background:#e0f2fe;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">🧬</div>
             <div>Prediction</div>
         </div>
-        <div style="font-size:1.6rem;font-weight:800;margin-top:0.5rem;">{"Non-Diabetic" if pred_class == 0 else "Diabetic"}</div>
+        <div style="font-size:1.6rem;font-weight:800;margin-top:0.5rem;">{pred_text}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -195,4 +158,127 @@ with c3:
     st.markdown(f"""
     <div class="tall-metric">
         <div style="display:flex;gap:0.4rem;align-items:center;">
-            <div style="width:28px;height:28px;background:#e0f2fe;border
+            <div style="width:28px;height:28px;background:#e0f2fe;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">⚠️</div>
+            <div>Risk Level</div>
+        </div>
+        <div style="font-size:1.6rem;font-weight:800;margin-top:0.5rem;color:{color_hex};">{label}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c4:
+    confidence = max(prob, 1 - prob)
+    st.markdown(f"""
+    <div class="tall-metric">
+        <div style="display:flex;gap:0.4rem;align-items:center;">
+            <div style="width:28px;height:28px;background:#e0f2fe;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">🎯</div>
+            <div>Model Confidence</div>
+        </div>
+        <div style="font-size:1.6rem;font-weight:800;margin-top:0.5rem;">{confidence:.1%}</div>
+        <div style="font-size:0.8rem;margin-top:0.4rem;color:#4b5563;">Higher = more certain</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.divider()
+
+tab1, tab2, tab3 = st.tabs(["📊 Risk Overview", "🔍 Health Profile", "🛡️ Recommendations"])
+
+with tab1:
+    col1, col2 = st.columns([1, 1.4])
+
+    with col1:
+        st.subheader("Probability Distribution")
+        fig_gauge = go.Figure(go.Indicator(
+            mode="gauge+number", 
+            value=prob*100, 
+            title={"text": "Diabetes Risk %"},
+            gauge={
+                "axis": {"range": [0, 100]},
+                "steps": [
+                    {"range": [0, 20], "color": "#dcfce7"},
+                    {"range": [20, 45], "color": "#fef9c3"},
+                    {"range": [45, 100], "color": "#fee2e2"}
+                ]
+            }
+        ))
+        fig_gauge.update_layout(height=300, margin=dict(l=10, r=10, t=50, b=10), paper_bgcolor="rgba(0,0,0,0)", font=dict(size=12, color="#111827"))
+        st.plotly_chart(fig_gauge, use_container_width=True)
+
+    with col2:
+        st.subheader("Risk Factor Contribution")
+        risk_drivers = pd.DataFrame({
+            "Factor": ["BMI", "Age", "Gen Health", "Phys Health", "Smoking"],
+            "Impact": [bmi/60, age/13, gen_hlth/5, phys_hlth/30, int(smoker)*0.5]
+        })
+        st.bar_chart(risk_drivers.set_index("Factor"), height=300)
+
+with tab2:
+    st.subheader("Health Profile Analysis")
+    score_col1, score_col2, score_col3 = st.columns(3)
+    
+    with score_col1:
+        st.metric("🏋️ Physical Health", f"{30-phys_hlth}/30 good days")
+    
+    with score_col2:
+        st.metric("🧠 Mental Health", f"{30-ment_hlth}/30 good days")
+    
+    with score_col3:
+        activity_score = 10 if phys_act else 3
+        st.metric("⚡ Activity Level", f"{activity_score}/10")
+
+    st.markdown("---")
+    st.subheader("Clinical Risk Stratification")
+    
+    risk_table = pd.DataFrame({
+        "Parameter": ["BMI Category", "BP Status", "Health Status", "Activity Status", "Smoking Status"],
+        "Current": [
+            f"{bmi:.1f} ({'Obese' if bmi >= 30 else 'Overweight' if bmi >= 25 else 'Healthy'})",
+            "Elevated" if high_bp else "Normal",
+            ["Excellent", "Very Good", "Good", "Fair", "Poor"][gen_hlth - 1],
+            "Active" if phys_act else "Inactive",
+            "Smoker" if smoker else "Non-smoker"
+        ],
+        "Risk Impact": [
+            "High" if bmi >= 30 else "Medium" if bmi >= 25 else "Low",
+            "High" if high_bp else "Low",
+            "High" if gen_hlth >= 4 else "Low",
+            "Low" if phys_act else "High",
+            "High" if smoker else "Low"
+        ]
+    })
+    st.dataframe(risk_table, use_container_width=True, hide_index=True)
+
+with tab3:
+    st.subheader("Personalized Health Recommendations")
+
+    c1_rec, c2_rec, c3_rec = st.columns(3)
+
+    with c1_rec:
+        if bmi > 25:
+            st.warning("**Weight Management** • Aim for 5-10% loss • Gradual change over 3-6 months")
+        else:
+            st.success("**Healthy BMI** • Maintain current range • Balanced nutrition")
+
+    with c2_rec:
+        if high_bp or high_chol:
+            st.error("**Clinical Screening** • Fasting glucose test • HbA1c testing • Regular BP follow-up")
+        else:
+            st.success("**Vitals Within Range** • Continue annual check-ups • Periodic monitoring")
+
+    with c3_rec:
+        if not phys_act:
+            st.info("**Increase Activity** • 30 min walk/day • Progress to 150 min/week • Strength training")
+        else:
+            st.success("**Active Lifestyle** • Maintain activity • Add strength training 2x/week")
+
+    if ment_hlth > 15:
+        st.warning(f"⚠️ **Mental Health Alert**: {ment_hlth} days affected. Consider professional support.")
+
+st.divider()
+st.markdown("""
+<div style="background-color: #e0f2fe; border-left: 5px solid #0284c7; padding: 15px; border-radius: 10px;">
+    <h3 style="color: #0f172a; margin-top: 0;">⚠️ Medical Disclaimer</h3>
+    <p style="color: #0f172a; margin-bottom: 0;"><strong>This tool provides statistical risk estimates only. NOT a medical diagnosis. Always consult healthcare professionals.</strong></p>
+</div>
+""", unsafe_allow_html=True)
+
+st.caption("🎓 University of Europe Capstone · Educational Screening Tool")

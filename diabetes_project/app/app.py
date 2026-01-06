@@ -11,37 +11,30 @@ st.set_page_config(
     layout="wide"
 )
 
-# ===== FORCE BLACK TEXT GLOBALLY =====
-st.markdown("""
-<style>
-.stApp, .stApp * {
-    color: #000000 !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ===== MAIN STYLING =====
+# ===== CSS (single block) =====
 st.markdown("""
 <style>
 /* ---- App shell ---- */
 .stApp {
     background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%);
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #000000 !important;
 }
 
-
+/* Make almost all text black */
+.stApp :is(p, span, label, div, small, li, a, h1, h2, h3, h4, h5, h6) {
+    color: #000000 !important;
+}
 
 /* Headings */
 h1 { font-size: 2.3rem; font-weight: 800; }
 h2 { font-size: 1.6rem; font-weight: 700; }
 h3 { font-size: 1.3rem; font-weight: 650; }
 
-/* Top bar */
+/* ---- Top bar ---- */
 #top-bar {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 40px;
     background: linear-gradient(90deg, #0ea5e9, #2563eb);
     color: #ffffff !important;
@@ -51,46 +44,67 @@ h3 { font-size: 1.3rem; font-weight: 650; }
     z-index: 1000;
     font-size: 0.95rem;
 }
+#top-bar * { color: #ffffff !important; }
+
 .main .block-container {
     padding-top: 60px;
     max-width: 1200px;
 }
 
-st.markdown("""
-<style>
-/* ---- NO GLOBAL BLACK OVERRIDE ---- */
+/* ---- Sidebar ---- */
+section[data-testid="stSidebar"]{
+    background: #f9fafb !important;
+    border-right: 1px solid #d4d4d8;
+}
+section[data-testid="stSidebar"] * {
+    color: #111827 !important;
+}
 
-/* App shell */
-.stApp {
-    background
-
-
-/* Expander cards */
-div[data-testid="stExpander"] {
+/* ---- Expander: REMOVE DARK HEADER BARS ---- */
+div[data-testid="stExpander"]{
     border-radius: 16px;
     margin-bottom: 0.8rem;
-    background: rgba(255,255,255,0.9);
-    box-shadow: 0 6px 18px rgba(15,23,42,0.12);
-    border: 1px solid rgba(148,163,184,0.4);
-}
-div[data-testid="stExpander"] > details > summary {
-    font-size: 1.0rem;
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 6px 18px rgba(15,23,42,0.10);
+    border: 1px solid rgba(148,163,184,0.35);
 }
 
-/* Select / inputs */
+/* Expander header (summary) -> light background */
+div[data-testid="stExpander"] > details > summary{
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-radius: 16px !important;
+    padding: 0.75rem 1rem !important;
+}
+div[data-testid="stExpander"] > details > summary *{
+    color: #111827 !important;
+}
+div[data-testid="stExpander"] > details > summary svg{
+    fill: #111827 !important;
+}
+
+/* Expander content area */
+div[data-testid="stExpander"] > details > div{
+    background: rgba(255,255,255,0.92) !important;
+    border-radius: 0 0 16px 16px !important;
+}
+
+/* Inputs */
 [data-baseweb="select"] > div {
-    background-color: #ffffff;
-    border-radius: 12px;
-    border: 1px solid #d4d4d8;
+    background-color: #ffffff !important;
+    border-radius: 12px !important;
+    border: 1px solid #d4d4d8 !important;
 }
 [data-baseweb="popover"] [role="listbox"] {
-    background-color: #ffffff;
+    background-color: #ffffff !important;
+    color: #111827 !important;
 }
 input[type="number"] {
-    background-color: #ffffff;
+    background-color: #ffffff !important;
+    color: #111827 !important;
 }
 
-/* Hero */
+/* ---- Hero ---- */
 .main-hero {
     padding: 22px 26px;
     border-radius: 22px;
@@ -102,7 +116,7 @@ input[type="number"] {
     max-width: 650px;
 }
 
-/* KPI cards */
+/* ---- KPI cards ---- */
 .tall-metric {
     background: rgba(255,255,255,0.9);
     border-radius: 24px;
@@ -117,20 +131,14 @@ input[type="number"] {
     min-height: 210px;
     position: relative;
 }
-
-/* Top accent strip */
 .tall-metric::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 5px;
     border-radius: 24px 24px 0 0;
     background: linear-gradient(90deg, #0ea5e9, #6366f1);
 }
-
-/* KPI header row */
 .tall-metric-header {
     display: flex;
     align-items: center;
@@ -146,9 +154,7 @@ input[type="number"] {
     justify-content: center;
     font-size: 0.9rem;
 }
-.tall-metric-label {
-    font-size: 1.05rem;
-}
+.tall-metric-label { font-size: 1.05rem; }
 .tall-metric-main {
     margin-top: 0.75rem;
     font-size: 2.0rem;
@@ -189,13 +195,11 @@ input[type="number"] {
     background: linear-gradient(135deg, #0ea5e9, #2563eb);
     color: #ffffff !important;
 }
-.stButton>button:hover {
-    filter: brightness(1.06);
-}
+.stButton>button:hover { filter: brightness(1.06); }
 
-/* Caption */
-footer, .stCaption {
-    font-size: 0.9rem;
+/* Success/info/warning boxes: readable */
+.stAlert, .stSuccess, .stInfo, .stWarning, .stError {
+    color: #111827 !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -425,11 +429,7 @@ with tab1:
                         {"range": [20, 45], "color": "#fef9c3"},
                         {"range": [45, 100], "color": "#fee2e2"},
                     ],
-                    "threshold": {
-                        "line": {"color": "red", "width": 4},
-                        "thickness": 0.75,
-                        "value": 50,
-                    },
+                    "threshold": {"line": {"color": "red", "width": 4}, "thickness": 0.75, "value": 50},
                 },
             )
         )
@@ -451,48 +451,28 @@ with tab1:
         )
         st.bar_chart(risk_drivers.set_index("Factor"), height=300)
 
-    st.markdown(
-        "*Note: Factor ‘Impact’ is a simplified score for illustration, not a calibrated clinical measure.*"
-    )
+    st.markdown("*Note: Factor ‘Impact’ is a simplified score for illustration, not a calibrated clinical measure.*")
 
 with tab2:
     st.subheader("Health Profile Analysis")
     score_col1, score_col2, score_col3 = st.columns(3)
 
     with score_col1:
-        st.metric(
-            "🏋️ Physical Health",
-            f"{30 - phys_hlth}/30 good days",
-            delta=f"{phys_hlth} days limited",
-        )
+        st.metric("🏋️ Physical Health", f"{30 - phys_hlth}/30 good days", delta=f"{phys_hlth} days limited")
 
     with score_col2:
-        st.metric(
-            "🧠 Mental Health",
-            f"{30 - ment_hlth}/30 good days",
-            delta=f"{ment_hlth} days affected",
-        )
+        st.metric("🧠 Mental Health", f"{30 - ment_hlth}/30 good days", delta=f"{ment_hlth} days affected")
 
     with score_col3:
         activity_score = 10 if phys_act else 3
-        st.metric(
-            "⚡ Activity Level",
-            f"{activity_score}/10",
-            delta="Active" if phys_act else "Sedentary",
-        )
+        st.metric("⚡ Activity Level", f"{activity_score}/10", delta="Active" if phys_act else "Sedentary")
 
     st.markdown("---")
     st.subheader("Clinical Risk Stratification")
 
     risk_table = pd.DataFrame(
         {
-            "Parameter": [
-                "BMI Category",
-                "BP Status",
-                "Health Status",
-                "Activity Status",
-                "Smoking Status",
-            ],
+            "Parameter": ["BMI Category", "BP Status", "Health Status", "Activity Status", "Smoking Status"],
             "Current": [
                 f"{bmi:.1f} ({'Obese' if bmi >= 30 else 'Overweight' if bmi >= 25 else 'Healthy'})",
                 "Elevated" if high_bp else "Normal",
@@ -576,11 +556,6 @@ with tab3:
             - LOW: 0–25% — Healthy population range  
             - MODERATE: 25–50% — Elevated risk, lifestyle optimisation  
             - HIGH: 50%+ — Discuss with clinician, possible further testing  
-
-            **Top Risk Drivers (Heuristic)**:
-            1. BMI: {bmi/60:.1%}
-            2. Age: {age/13:.1%}
-            3. General Health: {gen_hlth/5:.1%}
             """
         )
 

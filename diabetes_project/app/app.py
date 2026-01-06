@@ -28,6 +28,14 @@ st.markdown("""
     background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%);
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+/* Success, info, warning boxes */
+.stSuccess {
+    background-color: #dcfce7 !important;
+    color: #166534 !important;
+}
+.stInfo {
+    background
+
 
 /* Headings */
 h1 { font-size: 2.3rem; font-weight: 800; }

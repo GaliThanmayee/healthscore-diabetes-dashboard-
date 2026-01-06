@@ -54,16 +54,11 @@ h3 { font-size: 1.3rem; font-weight: 650; }
     max-width: 1200px;
 }
 
-/* Sidebar */
-section[data-testid="stSidebar"] {
-    background: #f9fafb;
-    border-right: 1px solid #d4d4d8;
-}
-section[data-testid="stSidebar"] h1 {
-    font-size: 1.5rem;
-}
-section[data-testid="stSidebar"] label {
+/* Sidebar expander header strip (Demographics, Clinical Metrics, etc.) */
+div[data-testid="stExpander"] > details > summary {
     font-size: 1.0rem;
+    color: #ffffff !important;          
+    background: #111827;                
 }
 
 /* Expander cards */

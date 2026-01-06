@@ -1,4 +1,9 @@
 import streamlit as st
+st.set_page_config(
+    page_title="Diabetes Risk Dashboard",  # Change this to your new name
+    page_icon="⚕️",  # Optional: smaller medical icon instead of scales
+    layout="wide"
+)
 
 st.set_page_config(layout="wide")
 

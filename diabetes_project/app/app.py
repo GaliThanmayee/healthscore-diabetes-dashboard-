@@ -5,7 +5,6 @@ st.set_page_config(layout="wide")
 st.markdown(
     """
     <style>
-    /* Shrink everything via base font size */
     html, body, [class*="css"] {
         font-size: 12px;
     }
@@ -13,6 +12,10 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+# optional: test banner
+st.warning("TEST CHANGE – new smaller layout active")
+
 
 import pandas as pd
 

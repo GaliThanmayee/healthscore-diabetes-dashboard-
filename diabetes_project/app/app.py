@@ -11,23 +11,6 @@ st.set_page_config(
     layout="wide"
 )
 
-st.markdown("""
-<style>
-* { font-size: 0.85rem !important; }
-h1 { font-size: 1.3rem !important; }
-h2 { font-size: 1.2rem !important; }
-h3 { font-size: 1.1rem !important; }
-#top-bar { font-size: 1.0rem !important; height: 35px !important; }
-.tall-metric-main { font-size: 1.6rem !important; }
-.tall-metric-label { font-size: 0.9rem !important; }
-section[data-testid="stSidebar"] label { font-size: 0.95rem !important; }
-.tall-metric { padding: 16px 14px !important; min-height: 180px !important; }
-.main-hero { padding: 16px 20px !important; }
-.stApp { background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%); font-family: "Inter", sans-serif; }
-.main .block-container { padding-top: 50px; }
-.tall-metric { background: rgba(255,255,255,0.82); border-radius: 20px; box-shadow: 0 12px 30px rgba(15,23,42,0.2); border: 1px solid rgba(191,219,254,0.8); }
-</style>
-""", unsafe_allow_html=True)
 
 st.markdown("<div id='top-bar'>Diabetes Risk Dashboard</div>", unsafe_allow_html=True)
 

@@ -6,39 +6,34 @@ from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
 
 st.set_page_config(
-    page_title="Diabetes Risk Prediction Dashboard",
+    page_title="Diabetes Prediction Dashboard",
     page_icon="⚕️",
     layout="wide"
 )
 
-# ===== GLOBAL CSS (single block) =====
+# ===== VERY STRONG TEXT COLOR OVERRIDE (everything black) =====
 st.markdown("""
 <style>
-/* ---- App shell ---- */
+.stApp, .stApp * {
+    color: #000000 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ===== MAIN STYLING =====
+st.markdown("""
+<style>
 .stApp {
     background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%);
-    color: #000000;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* Let Streamlit manage base font size; only tweak headings */
-h1 {
-    font-size: 2.3rem;
-    font-weight: 800;
-    color: #0f172a;
-}
-h2 {
-    font-size: 1.6rem;
-    font-weight: 700;
-    color: #111827;
-}
-h3 {
-    font-size: 1.3rem;
-    font-weight: 650;
-    color: #111827;
-}
+/* Headings */
+h1 { font-size: 2.3rem; font-weight: 800; }
+h2 { font-size: 1.6rem; font-weight: 700; }
+h3 { font-size: 1.3rem; font-weight: 650; }
 
-/* ---- Top bar ---- */
+/* Top bar */
 #top-bar {
     position: fixed;
     top: 0;
@@ -46,7 +41,7 @@ h3 {
     right: 0;
     height: 40px;
     background: linear-gradient(90deg, #0ea5e9, #2563eb);
-    color: #ffffff;
+    color: #ffffff !important;
     display: flex;
     align-items: center;
     padding: 0 18px;
@@ -54,21 +49,16 @@ h3 {
     font-size: 0.95rem;
 }
 .main .block-container {
-    padding-top: 60px;      /* push content below top bar */
-    max-width: 1200px;      /* so 4 KPI cards fit nicely */
+    padding-top: 60px;
+    max-width: 1200px;
 }
 
-/* ---- Sidebar ---- */
+/* Sidebar */
 section[data-testid="stSidebar"] {
     background: #f9fafb;
     border-right: 1px solid #d4d4d8;
 }
-section[data-testid="stSidebar"] h1 {
-    font-size: 1.5rem;
-}
-section[data-testid="stSidebar"] label {
-    font-size: 1.0rem;
-}
+section[data-testid="stSidebar"] h1 { font-size: 1.5rem; }
 
 /* Expander cards */
 div[data-testid="stExpander"] {
@@ -78,38 +68,18 @@ div[data-testid="stExpander"] {
     box-shadow: 0 6px 18px rgba(15,23,42,0.12);
     border: 1px solid rgba(148,163,184,0.4);
 }
-div[data-testid="stExpander"] > details > summary {
-    color: #000000;
-    font-size: 1.0rem;
-}
 
-/* Select / inputs */
+/* Inputs */
 [data-baseweb="select"] > div {
     background-color: #ffffff;
-    color: #000000;
     border-radius: 12px;
     border: 1px solid #d4d4d8;
 }
-[data-baseweb="select"] span {
-    color: #000000;
-}
 [data-baseweb="popover"] [role="listbox"] {
     background-color: #ffffff;
-    color: #000000;
-}
-[data-baseweb="popover"] [role="option"] {
-    background-color: #ffffff;
-    color: #000000;
-}
-[data-baseweb="popover"] [role="option"]:hover {
-    background-color: #e5f0ff;
-}
-input[type="number"] {
-    background-color: #ffffff;
-    color: #000000;
 }
 
-/* ---- Hero card ---- */
+/* Hero */
 .main-hero {
     padding: 22px 26px;
     border-radius: 22px;
@@ -118,11 +88,10 @@ input[type="number"] {
     border: 1px solid rgba(148,163,184,0.55);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    color: #000000;
     max-width: 650px;
 }
 
-/* ---- KPI cards ---- */
+/* KPI cards */
 .tall-metric {
     background: rgba(255,255,255,0.9);
     border-radius: 24px;
@@ -135,23 +104,16 @@ input[type="number"] {
     flex-direction: column;
     justify-content: space-between;
     min-height: 210px;
-    color: #000000;
     position: relative;
 }
-
-/* Top accent strip */
 .tall-metric::before {
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 5px;
     border-radius: 24px 24px 0 0;
     background: linear-gradient(90deg, #0ea5e9, #6366f1);
 }
-
-/* KPI header row */
 .tall-metric-header {
     display: flex;
     align-items: center;
@@ -169,33 +131,31 @@ input[type="number"] {
 }
 .tall-metric-label {
     font-size: 1.05rem;
-    color: #111827;
 }
 .tall-metric-main {
     margin-top: 0.75rem;
     font-size: 2.0rem;
     line-height: 1.1;
-    word-break: break-word;   /* keep “Non‑Diabetic” tidy */
+    word-break: break-word;
 }
 
 /* Risk colors */
-.risk-high { color: #b91c1c; font-weight: 800; }
-.risk-med  { color: #c05621; font-weight: 800; }
-.risk-low  { color: #15803d; font-weight: 800; }
+.risk-high { color: #b91c1c !important; font-weight: 800; }
+.risk-med  { color: #c05621 !important; font-weight: 800; }
+.risk-low  { color: #15803d !important; font-weight: 800; }
 
-/* ---- Tabs ---- */
+/* Tabs */
 .stTabs [data-baseweb="tab-list"] { gap: 6px; }
 .stTabs [data-baseweb="tab"] {
     border-radius: 999px;
     padding: 8px 24px;
     background: rgba(255,255,255,0.9);
     border: 1px solid rgba(209,213,219,0.9);
-    color: #000000;
     font-size: 1.0rem;
     font-weight: 600;
 }
 
-/* ---- Dataframe ---- */
+/* Dataframe */
 [data-testid="stDataFrame"] {
     border-radius: 14px;
     overflow: hidden;
@@ -203,30 +163,21 @@ input[type="number"] {
     background-color: #ffffff;
 }
 
-/* ---- Buttons ---- */
+/* Buttons */
 .stButton>button, .stDownloadButton>button {
     border-radius: 999px;
     padding: 0.6rem 1.5rem;
     font-weight: 600;
     border: none;
     background: linear-gradient(135deg, #0ea5e9, #2563eb);
-    color: #ffffff;
-}
-.stButton>button:hover {
-    filter: brightness(1.06);
-}
-
-/* ---- Caption ---- */
-footer, .stCaption {
-    font-size: 0.9rem;
-    color: #000000;
+    color: #ffffff !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<div id='top-bar'>Diabetes Risk Prediction Dashboard</div>", unsafe_allow_html=True)
+st.markdown("<div id='top-bar'>Diabetes Prediction Dashboard</div>", unsafe_allow_html=True)
 
-# ===== Model training =====
+# ===== MODEL =====
 @st.cache_data
 def train_model():
     np.random.seed(42)
@@ -272,7 +223,7 @@ def train_model():
 
 model, scaler = train_model()
 
-# ===== Sidebar: Patient profile =====
+# ===== SIDEBAR =====
 AGE_OPTS = {i: f"Age {18+((i-1)*5)}-{22+((i-1)*5)}" for i in range(1, 14)}
 AGE_OPTS[13] = "Age 80+"
 
@@ -307,7 +258,7 @@ with st.sidebar:
         stroke = st.checkbox("Stroke History")
         heart = st.checkbox("Heart Disease")
 
-# ===== Hero =====
+# ===== HERO =====
 st.success("✅ Advanced ML model trained | Diabetes Risk Screening")
 
 hero_left, hero_right = st.columns([2.2, 1])
@@ -316,7 +267,7 @@ with hero_left:
     st.markdown(
         """
         <div class="main-hero">
-            <h1 style="margin-bottom:0.2rem;">⚖️ HealthScore <span style="font-weight:800;">AI</span></h1>
+            <h1 style="margin-bottom:0.2rem;">⚕️ Diabetes Prediction Dashboard</h1>
             <p style="margin-top:0.3rem;font-size:1.0rem;">
                 Intelligent diabetes <strong>risk screening</strong> using lifestyle and clinical indicators.
                 Educational capstone project – not a diagnostic tool.
@@ -331,7 +282,7 @@ with hero_right:
 
 st.markdown("")
 
-# ===== Model inference =====
+# ===== INFERENCE =====
 input_data = {
     "HighBP": int(high_bp),
     "HighChol": int(high_chol),
@@ -344,20 +295,7 @@ input_data = {
     "Smoker": int(smoker),
 }
 
-X = pd.DataFrame(
-    [input_data],
-    columns=[
-        "HighBP",
-        "HighChol",
-        "BMI",
-        "Age",
-        "GenHlth",
-        "PhysHlth",
-        "MentHlth",
-        "PhysActivity",
-        "Smoker",
-    ],
-)
+X = pd.DataFrame([input_data])
 X_scaled = scaler.transform(X)
 prob = model.predict_proba(X_scaled)[0, 1]
 pred_class = model.predict(X_scaled)[0]
@@ -369,7 +307,7 @@ elif prob < 0.45:
 else:
     color_class, label = "risk-high", "HIGH RISK 🔴"
 
-# ===== KPI row =====
+# ===== KPI CARDS =====
 c1, c2, c3, c4 = st.columns(4)
 
 with c1:
@@ -432,7 +370,7 @@ with c4:
             <div class="tall-metric-main">
                 {confidence:.1%}
             </div>
-            <div style="font-size:0.9rem;margin-top:0.4rem;color:#4b5563;">
+            <div style="font-size:0.9rem;margin-top:0.4rem;">
                 Higher values mean more certain predictions.
             </div>
         </div>
@@ -440,200 +378,3 @@ with c4:
         unsafe_allow_html=True,
     )
 
-st.divider()
-
-# ===== Tabs =====
-tab1, tab2, tab3 = st.tabs(["📊 Risk Overview", "🔍 Health Profile", "🛡️ Recommendations"])
-
-with tab1:
-    col1, col2 = st.columns([1, 1.4])
-
-    with col1:
-        st.subheader("Probability Distribution")
-        fig_gauge = go.Figure(
-            go.Indicator(
-                mode="gauge+number",
-                value=prob * 100,
-                title={"text": "Diabetes Risk %"},
-                gauge={
-                    "axis": {"range": [0, 100]},
-                    "steps": [
-                        {"range": [0, 20], "color": "#dcfce7"},
-                        {"range": [20, 45], "color": "#fef9c3"},
-                        {"range": [45, 100], "color": "#fee2e2"},
-                    ],
-                    "threshold": {
-                        "line": {"color": "red", "width": 4},
-                        "thickness": 0.75,
-                        "value": 50,
-                    },
-                },
-            )
-        )
-        fig_gauge.update_layout(
-            height=300,
-            margin=dict(l=10, r=10, t=50, b=10),
-            paper_bgcolor="rgba(0,0,0,0)",
-            font=dict(size=14, color="#111827"),
-        )
-        st.plotly_chart(fig_gauge, use_container_width=True)
-
-    with col2:
-        st.subheader("Risk Factor Contribution (Heuristic)")
-        risk_drivers = pd.DataFrame(
-            {
-                "Factor": ["BMI", "Age", "Gen Health", "Phys Health", "Smoking"],
-                "Impact": [bmi / 60, age / 13, gen_hlth / 5, phys_hlth / 30, int(smoker) * 0.5],
-            }
-        )
-        st.bar_chart(risk_drivers.set_index("Factor"), height=300)
-
-    st.markdown(
-        "*Note: Factor ‘Impact’ is a simplified score for illustration, not a calibrated clinical measure.*"
-    )
-
-with tab2:
-    st.subheader("Health Profile Analysis")
-    score_col1, score_col2, score_col3 = st.columns(3)
-
-    with score_col1:
-        st.metric(
-            "🏋️ Physical Health",
-            f"{30 - phys_hlth}/30 good days",
-            delta=f"{phys_hlth} days limited",
-        )
-
-    with score_col2:
-        st.metric(
-            "🧠 Mental Health",
-            f"{30 - ment_hlth}/30 good days",
-            delta=f"{ment_hlth} days affected",
-        )
-
-    with score_col3:
-        activity_score = 10 if phys_act else 3
-        st.metric(
-            "⚡ Activity Level",
-            f"{activity_score}/10",
-            delta="Active" if phys_act else "Sedentary",
-        )
-
-    st.markdown("---")
-    st.subheader("Clinical Risk Stratification")
-
-    risk_table = pd.DataFrame(
-        {
-            "Parameter": [
-                "BMI Category",
-                "BP Status",
-                "Health Status",
-                "Activity Status",
-                "Smoking Status",
-            ],
-            "Current": [
-                f"{bmi:.1f} ({'Obese' if bmi >= 30 else 'Overweight' if bmi >= 25 else 'Healthy'})",
-                "Elevated" if high_bp else "Normal",
-                ["Excellent", "Very Good", "Good", "Fair", "Poor"][gen_hlth - 1],
-                "Active" if phys_act else "Inactive",
-                "Smoker" if smoker else "Non-smoker",
-            ],
-            "Risk Impact": [
-                "High" if bmi >= 30 else "Medium" if bmi >= 25 else "Low",
-                "High" if high_bp else "Low",
-                "High" if gen_hlth >= 4 else "Low",
-                "Low" if phys_act else "High",
-                "High" if smoker else "Low",
-            ],
-        }
-    )
-    st.dataframe(risk_table, use_container_width=True, hide_index=True)
-
-with tab3:
-    st.subheader("Personalized Health Recommendations")
-
-    c1_rec, c2_rec, c3_rec = st.columns(3)
-
-    with c1_rec:
-        if bmi > 25:
-            st.warning(
-                "**Weight Management**\n\n"
-                "• Aim for 5–10% weight loss\n"
-                "• Gradual change over 3–6 months\n"
-                "• Combine nutrition + activity"
-            )
-        else:
-            st.success(
-                "**Healthy BMI**\n\n"
-                "• Maintain current range\n"
-                "• Balanced diet and regular movement"
-            )
-
-    with c2_rec:
-        if high_bp or high_chol:
-            st.error(
-                "**Clinical Screening**\n\n"
-                "• Fasting glucose test\n"
-                "• HbA1c testing\n"
-                "• Regular blood pressure & lipid follow-up"
-            )
-        else:
-            st.success(
-                "**Vitals Within Range**\n\n"
-                "• Continue annual check-ups\n"
-                "• Track blood pressure & lipids periodically"
-            )
-
-    with c3_rec:
-        if not phys_act:
-            st.info(
-                "**Increase Activity**\n\n"
-                "• Start with 30 minutes brisk walk/day\n"
-                "• Progress towards 150 minutes/week\n"
-                "• Add light strength training twice/week"
-            )
-        else:
-            st.success(
-                "**Active Lifestyle**\n\n"
-                "• Maintain activity level\n"
-                "• Consider structured strength training"
-            )
-
-    if ment_hlth > 15:
-        st.warning(
-            f"⚠️ **Mental Health Alert**: {ment_hlth} days of poor mental health in last month. "
-            "Consider speaking with a mental health professional."
-        )
-
-    with st.expander("🔬 Advanced Model Insights", expanded=False):
-        st.write(
-            f"""
-            **Model Confidence**: {max(prob, 1 - prob):.1%}
-
-            **Risk Bands (Educational)**:
-            - LOW: 0–25% — Healthy population range  
-            - MODERATE: 25–50% — Elevated risk, lifestyle optimisation  
-            - HIGH: 50%+ — Discuss with clinician, possible further testing  
-
-            **Top Risk Drivers (Heuristic)**:
-            1. BMI: {bmi/60:.1%}
-            2. Age: {age/13:.1%}
-            3. General Health: {gen_hlth/5:.1%}
-            """
-        )
-
-st.divider()
-st.markdown(
-    """
-    <div style='background-color: #e0f2fe; border-left: 5px solid #0284c7;
-                padding: 15px; border-radius: 10px; margin: 20px 0;'>
-        <h3 style='color: #0f172a; margin-top: 0;'>⚠️ Medical Disclaimer</h3>
-        <p style='color: #0f172a; margin-bottom: 0;'>
-        <strong>This tool provides statistical risk estimates only and is NOT a medical diagnosis.
-        Always consult a qualified healthcare professional for actual diagnosis and treatment.</strong>
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.caption("🎓 University of Europe Capstone · Educational Screening Tool")

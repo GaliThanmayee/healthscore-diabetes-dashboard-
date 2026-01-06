@@ -5,6 +5,24 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
 
+st.markdown(
+    """
+    <style>
+    /* Scale the entire Streamlit app down a bit */
+    .main {
+        zoom: 0.8;        /* 0.8 = 80% size; try 0.7 for smaller */
+    }
+
+    /* Optional: smaller base font for all text */
+    html, body, [class*="css"]  {
+        font-size: 14px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
 
 st.set_page_config(
     page_title="HealthScore – Diabetes Risk Dashboard",

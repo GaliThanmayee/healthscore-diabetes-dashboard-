@@ -28,13 +28,7 @@ st.markdown("""
     background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%);
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
-/* Success, info, warning boxes */
-.stSuccess {
-    background-color: #dcfce7 !important;
-    color: #166534 !important;
-}
-.stInfo {
-    background
+
 
 
 /* Headings */
@@ -62,12 +56,14 @@ h3 { font-size: 1.3rem; font-weight: 650; }
     max-width: 1200px;
 }
 
-/* Sidebar expander header strip (Demographics, Clinical Metrics, etc.) */
-div[data-testid="stExpander"] > details > summary {
-    font-size: 1.0rem;
-    color: #ffffff !important;          
-    background: #111827;                
-}
+st.markdown("""
+<style>
+/* ---- NO GLOBAL BLACK OVERRIDE ---- */
+
+/* App shell */
+.stApp {
+    background
+
 
 /* Expander cards */
 div[data-testid="stExpander"] {

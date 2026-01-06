@@ -1,19 +1,13 @@
 import streamlit as st
 
-
 st.set_page_config(layout="wide")
 
 st.markdown(
     """
     <style>
-    /* Scale the whole main area */
-    .main {
-        zoom: 0.8;        /* try 0.75 or 0.7 if still too big */
-    }
-
-    /* Smaller default font size */
+    /* Shrink everything via base font size */
     html, body, [class*="css"] {
-        font-size: 14px;
+        font-size: 12px;
     }
     </style>
     """,
@@ -21,6 +15,7 @@ st.markdown(
 )
 
 import pandas as pd
+
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler

@@ -1,26 +1,32 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.preprocessing import StandardScaler
-import plotly.graph_objects as go
+
+
+st.set_page_config(layout="wide")
 
 st.markdown(
     """
     <style>
-    /* Scale the entire Streamlit app down a bit */
+    /* Scale the whole main area */
     .main {
-        zoom: 0.7;      
+        zoom: 0.8;        /* try 0.75 or 0.7 if still too big */
     }
 
-    /* Optional: smaller base font for all text */
-    html, body, [class*="css"]  {
+    /* Smaller default font size */
+    html, body, [class*="css"] {
         font-size: 14px;
     }
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+import plotly.graph_objects as go
+
+
 
 
 

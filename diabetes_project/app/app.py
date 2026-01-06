@@ -6,8 +6,6 @@ from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
 
 st.set_page_config(
-    page_title="Diabetes Risk Prediction Dashboard",
-    page_icon="⚕️",
     layout="wide"
 )
 

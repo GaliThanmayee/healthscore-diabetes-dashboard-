@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
+from datetime import datetime
 
 st.set_page_config(
     page_title="Diabetes Prediction Dashboard",
@@ -11,112 +12,118 @@ st.set_page_config(
     layout="wide"
 )
 
-# ===== CSS (complete styling) =====
-st.markdown("""
+# Cache buster
+cache_key = datetime.now().strftime("%Y%m%d%H%M%S")
+
+# ===== CSS (AGGRESSIVE - with !important everywhere) =====
+st.markdown(f"""
 <style>
+/* Cache buster: {cache_key} */
+
 /* ---- App shell ---- */
-.stApp {
-    background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%);
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+.stApp {{
+    background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%) !important;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
     color: #000000 !important;
-}
+}}
 
 /* Make almost all text black */
-.stApp :is(p, span, label, div, small, li, a, h1, h2, h3, h4, h5, h6) {
+.stApp :is(p, span, label, div, small, li, a, h1, h2, h3, h4, h5, h6) {{
     color: #000000 !important;
-}
+}}
 
 /* Headings */
-h1 { font-size: 2.3rem; font-weight: 800; }
-h2 { font-size: 1.6rem; font-weight: 700; }
-h3 { font-size: 1.3rem; font-weight: 650; }
+h1 {{ font-size: 2.3rem !important; font-weight: 800 !important; }}
+h2 {{ font-size: 1.6rem !important; font-weight: 700 !important; }}
+h3 {{ font-size: 1.3rem !important; font-weight: 650 !important; }}
 
 /* ---- Top bar ---- */
-#top-bar {
+#top-bar {{
     position: fixed;
     top: 0; left: 0; right: 0;
     height: 40px;
-    background: linear-gradient(90deg, #0ea5e9, #2563eb);
+    background: linear-gradient(90deg, #0ea5e9, #2563eb) !important;
     color: #ffffff !important;
     display: flex;
     align-items: center;
     padding: 0 18px;
     z-index: 1000;
     font-size: 0.95rem;
-}
-#top-bar * { color: #ffffff !important; }
+}}
+#top-bar * {{ color: #ffffff !important; }}
 
-.main .block-container {
-    padding-top: 60px;
-    max-width: 1200px;
-}
+.main .block-container {{
+    padding-top: 60px !important;
+    max-width: 1200px !important;
+}}
 
 /* ---- Sidebar ---- */
-section[data-testid="stSidebar"]{
+section[data-testid="stSidebar"]{{
     background: #f9fafb !important;
-    border-right: 1px solid #d4d4d8;
-}
-section[data-testid="stSidebar"] * {
+    border-right: 1px solid #d4d4d8 !important;
+}}
+section[data-testid="stSidebar"] * {{
     color: #111827 !important;
-}
+}}
 
-/* ---- Expander: REMOVE DARK HEADER BARS ---- */
-div[data-testid="stExpander"]{
-    border-radius: 16px;
-    margin-bottom: 0.8rem;
-    background: rgba(255,255,255,0.92);
-    box-shadow: 0 6px 18px rgba(15,23,42,0.10);
-    border: 1px solid rgba(148,163,184,0.35);
-}
+/* ---- Expander ---- */
+div[data-testid="stExpander"]{{
+    border-radius: 16px !important;
+    margin-bottom: 0.8rem !important;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 6px 18px rgba(15,23,42,0.10) !important;
+    border: 1px solid rgba(148,163,184,0.35) !important;
+}}
 
-/* Expander header (summary) -> light background */
-div[data-testid="stExpander"] > details > summary{
+div[data-testid="stExpander"] > details > summary{{
     background: #ffffff !important;
     color: #111827 !important;
     border-radius: 16px !important;
     padding: 0.75rem 1rem !important;
-}
-div[data-testid="stExpander"] > details > summary *{
+}}
+div[data-testid="stExpander"] > details > summary *{{
     color: #111827 !important;
-}
-div[data-testid="stExpander"] > details > summary svg{
+}}
+div[data-testid="stExpander"] > details > summary svg{{
     fill: #111827 !important;
-}
+}}
 
-/* Expander content area */
-div[data-testid="stExpander"] > details > div{
+div[data-testid="stExpander"] > details > div{{
     background: rgba(255,255,255,0.92) !important;
     border-radius: 0 0 16px 16px !important;
-}
+}}
 
-/* ---- Input Fields ---- */
-[data-baseweb="select"] > div {
+/* ---- Number Input (BMI field) ---- */
+input[type="number"] {{
+    background-color: #ffffff !important;
+    color: #111827 !important;
+}}
+
+/* BMI +/- SPINNER BUTTONS: LIGHT (NO BLACK) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {{
+    -webkit-appearance: auto !important;
+    appearance: auto !important;
+    background-color: #f3f4f6 !important;
+    border-left: 1px solid #d1d5db !important;
+    color: #111827 !important;
+    opacity: 1 !important;
+}}
+
+/* ---- Select boxes ---- */
+[data-baseweb="select"] > div {{
     background-color: #ffffff !important;
     border-radius: 12px !important;
     border: 1px solid #d4d4d8 !important;
-}
-[data-baseweb="popover"] [role="listbox"] {
+    color: #111827 !important;
+}}
+[data-baseweb="popover"] [role="listbox"] {{
     background-color: #ffffff !important;
     color: #111827 !important;
-}
-input[type="number"] {
-    background-color: #ffffff !important;
-    color: #111827 !important;
-}
-
-/* BMI +/- spinner buttons (LIGHT/TRANSPARENT - no black) */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: auto !important;
-    appearance: auto !important;
-    background-color: rgba(255,255,255,0.9) !important;
-    border: 1px solid #d4d4d8 !important;
-    color: #111827 !important;
-    opacity: 1 !important;
-}
+}}
 
 /* ---- Hero ---- */
-.main-hero {
+.main-hero {{
     padding: 22px 26px;
     border-radius: 22px;
     background: rgba(255,255,255,0.78);
@@ -125,10 +132,11 @@ input[type="number"]::-webkit-inner-spin-button {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     max-width: 650px;
-}
+    color: #000000 !important;
+}}
 
 /* ---- KPI cards ---- */
-.tall-metric {
+.tall-metric {{
     background: rgba(255,255,255,0.9);
     border-radius: 24px;
     padding: 20px 18px 16px 18px;
@@ -141,21 +149,25 @@ input[type="number"]::-webkit-inner-spin-button {
     justify-content: space-between;
     min-height: 210px;
     position: relative;
-}
-.tall-metric::before {
+    color: #000000 !important;
+}}
+
+.tall-metric::before {{
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 5px;
     border-radius: 24px 24px 0 0;
     background: linear-gradient(90deg, #0ea5e9, #6366f1);
-}
-.tall-metric-header {
+}}
+
+.tall-metric-header {{
     display: flex;
     align-items: center;
     gap: 0.4rem;
-}
-.tall-metric-pill {
+}}
+
+.tall-metric-pill {{
     width: 28px;
     height: 28px;
     border-radius: 999px;
@@ -164,71 +176,74 @@ input[type="number"]::-webkit-inner-spin-button {
     align-items: center;
     justify-content: center;
     font-size: 0.9rem;
-}
-.tall-metric-label { font-size: 1.05rem; }
-.tall-metric-main {
+}}
+
+.tall-metric-label {{ font-size: 1.05rem !important; color: #111827 !important; }}
+
+.tall-metric-main {{
     margin-top: 0.75rem;
     font-size: 2.0rem;
     line-height: 1.1;
     word-break: break-word;
-}
+}}
 
 /* Risk colors */
-.risk-high { color: #b91c1c !important; font-weight: 800; }
-.risk-med  { color: #c05621 !important; font-weight: 800; }
-.risk-low  { color: #15803d !important; font-weight: 800; }
+.risk-high {{ color: #b91c1c !important; font-weight: 800; }}
+.risk-med  {{ color: #c05621 !important; font-weight: 800; }}
+.risk-low  {{ color: #15803d !important; font-weight: 800; }}
 
 /* ---- Tabs ---- */
-.stTabs [data-baseweb="tab-list"] { gap: 6px; }
-.stTabs [data-baseweb="tab"] {
-    border-radius: 999px;
-    padding: 8px 24px;
-    background: rgba(255,255,255,0.9);
-    border: 1px solid rgba(209,213,219,0.9);
-    font-size: 1.0rem;
-    font-weight: 600;
-}
+.stTabs [data-baseweb="tab-list"] {{ gap: 6px !important; }}
+.stTabs [data-baseweb="tab"] {{
+    border-radius: 999px !important;
+    padding: 8px 24px !important;
+    background: rgba(255,255,255,0.9) !important;
+    border: 1px solid rgba(209,213,219,0.9) !important;
+    font-size: 1.0rem !important;
+    font-weight: 600 !important;
+    color: #000000 !important;
+}}
 
-/* ---- Graphs - add spacing and reduce size ---- */
-[data-testid="stPlotlyContainer"] {
+/* ---- Graphs: Spacing & Size ---- */
+[data-testid="stPlotlyContainer"] {{
     margin-bottom: 2rem !important;
     padding: 1rem 0 !important;
-}
+}}
 
-/* Smaller Plotly charts */
-.plotly-graph-div {
+.plotly-graph-div {{
     max-height: 350px !important;
-}
+}}
 
 /* ---- Dataframe ---- */
-[data-testid="stDataFrame"] {
-    border-radius: 14px;
+[data-testid="stDataFrame"] {{
+    border-radius: 14px !important;
     overflow: hidden;
-    box-shadow: 0 10px 28px rgba(15,23,42,0.22);
-    background-color: #ffffff;
+    box-shadow: 0 10px 28px rgba(15,23,42,0.22) !important;
+    background-color: #ffffff !important;
     margin: 1.5rem 0 !important;
-}
+}}
 
 /* ---- Buttons ---- */
-.stButton>button, .stDownloadButton>button {
-    border-radius: 999px;
-    padding: 0.6rem 1.5rem;
-    font-weight: 600;
-    border: none;
-    background: linear-gradient(135deg, #0ea5e9, #2563eb);
+.stButton>button, .stDownloadButton>button {{
+    border-radius: 999px !important;
+    padding: 0.6rem 1.5rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    background: linear-gradient(135deg, #0ea5e9, #2563eb) !important;
     color: #ffffff !important;
-}
-.stButton>button:hover { filter: brightness(1.06); }
+}}
 
-/* Success/info/warning boxes: readable */
-.stAlert, .stSuccess, .stInfo, .stWarning, .stError {
+.stButton>button:hover {{ filter: brightness(1.06); }}
+
+/* ---- Success/Info/Warning boxes ---- */
+.stAlert, .stSuccess, .stInfo, .stWarning, .stError {{
     color: #111827 !important;
-}
+}}
 
-/* ---- Columns spacing ---- */
-.stColumn {
+/* ---- Column spacing ---- */
+.stColumn {{
     padding: 0 0.5rem !important;
-}
+}}
 </style>
 """, unsafe_allow_html=True)
 
@@ -441,7 +456,7 @@ st.divider()
 tab1, tab2, tab3 = st.tabs(["📊 Risk Overview", "🔍 Health Profile", "🛡️ Recommendations"])
 
 with tab1:
-    col1, col2 = st.columns([1.2, 1.3])
+    col1, col2 = st.columns([1.2, 1.3], gap="medium")
 
     with col1:
         st.subheader("Probability Distribution")

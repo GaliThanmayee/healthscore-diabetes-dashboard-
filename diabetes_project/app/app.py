@@ -5,10 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
 
-st.set_page_config(
-    layout="wide"
-)
-
+st.set_page_config(layout="wide")
 
 st.markdown("<div id='top-bar'>Diabetes Risk Dashboard</div>", unsafe_allow_html=True)
 
@@ -82,7 +79,7 @@ with hero_left:
     st.markdown("""
     <div class="main-hero">
         <h1 style="margin-bottom:0.2rem;">⚕️ Diabetes Risk Dashboard</h1>
-        <p style="margin-top:0.3rem;">Intelligent risk screening using clinical + lifestyle data. Educational tool only.</p>
+        <p style="margin-top:0.3rem;">Intelligent diabetes risk screening using lifestyle and clinical indicators - educational tool only.</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -161,7 +158,7 @@ with c4:
 
 st.divider()
 
-tab1, tab2, tab3 = st.tabs(["📊 Risk Overview", "🔍 Health Profile", "🛡️ Recommendations"])
+tab1, tab2, tab3 = st.tabs(["Risk Overview", "Health Profile", "Recommendations"])
 
 with tab1:
     col1, col2 = st.columns([1, 1.4])
@@ -231,28 +228,62 @@ with tab2:
 with tab3:
     st.subheader("Personalized Health Recommendations")
 
-    c1_rec, c2_rec, c3_rec = st.columns(3)
+    # Weight Management Box
+    if bmi > 25:
+        st.markdown("""
+        <div style="background-color: #fef3c7; border-left: 5px solid #f59e0b; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="font-weight: 700; font-size: 1.1rem; color: #92400e; margin-bottom: 8px;">Weight Management</div>
+            <div style="color: #78350f;">• Aim for 5-10% loss<br>• Gradual change over 3-6 months</div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style="background-color: #d1fae5; border-left: 5px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="font-weight: 700; font-size: 1.1rem; color: #065f46; margin-bottom: 8px;">Healthy BMI</div>
+            <div style="color: #047857;">• Maintain current range<br>• Balanced nutrition</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    with c1_rec:
-        if bmi > 25:
-            st.warning("**Weight Management** • Aim for 5-10% loss • Gradual change over 3-6 months")
-        else:
-            st.success("**Healthy BMI** • Maintain current range • Balanced nutrition")
+    # Clinical Screening Box
+    if high_bp or high_chol:
+        st.markdown("""
+        <div style="background-color: #fee2e2; border-left: 5px solid #ef4444; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="font-weight: 700; font-size: 1.1rem; color: #991b1b; margin-bottom: 8px;">Clinical Screening</div>
+            <div style="color: #7f1d1d;">• Fasting glucose test<br>• HbA1c testing<br>• Regular BP follow-up</div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style="background-color: #d1fae5; border-left: 5px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="font-weight: 700; font-size: 1.1rem; color: #065f46; margin-bottom: 8px;">Vitals Within Range</div>
+            <div style="color: #047857;">• Continue annual check-ups<br>• Periodic monitoring</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    with c2_rec:
-        if high_bp or high_chol:
-            st.error("**Clinical Screening** • Fasting glucose test • HbA1c testing • Regular BP follow-up")
-        else:
-            st.success("**Vitals Within Range** • Continue annual check-ups • Periodic monitoring")
+    # Activity Level Box
+    if not phys_act:
+        st.markdown("""
+        <div style="background-color: #dbeafe; border-left: 5px solid #3b82f6; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="font-weight: 700; font-size: 1.1rem; color: #1e3a8a; margin-bottom: 8px;">Active Lifestyle</div>
+            <div style="color: #1e40af;">• Maintain activity<br>• Add strength training 2x/week</div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style="background-color: #d1fae5; border-left: 5px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="font-weight: 700; font-size: 1.1rem; color: #065f46; margin-bottom: 8px;">Active Lifestyle</div>
+            <div style="color: #047857;">• Maintain activity<br>• Add strength training 2x/week</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    with c3_rec:
-        if not phys_act:
-            st.info("**Increase Activity** • 30 min walk/day • Progress to 150 min/week • Strength training")
-        else:
-            st.success("**Active Lifestyle** • Maintain activity • Add strength training 2x/week")
-
+    # Mental Health Alert
     if ment_hlth > 15:
-        st.warning(f"⚠️ **Mental Health Alert**: {ment_hlth} days affected. Consider professional support.")
+        st.markdown(f"""
+        <div style="background-color: #fef3c7; border-left: 5px solid #f59e0b; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <div style="font-weight: 700; font-size: 1.1rem; color: #92400e; margin-bottom: 8px;">⚠️ Mental Health Alert</div>
+            <div style="color: #78350f;">{ment_hlth} days affected. Consider professional support.</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 st.divider()
 st.markdown("""
@@ -263,3 +294,4 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.caption("🎓 University of Europe Capstone · Educational Screening Tool")
+

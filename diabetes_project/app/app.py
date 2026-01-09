@@ -4,33 +4,40 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
-import plotly.express as px
 from datetime import datetime
 
-st.set_page_config(page_title="Diabetes Prediction Dashboard", page_icon="⚕️", layout="wide")
+st.set_page_config(
+    page_title="Diabetes Prediction Dashboard",
+    page_icon="⚕️",
+    layout="wide"
+)
 
-# ===== ULTRA-TIGHT CSS (ZERO GAPS EVERYWHERE) =====
+# Cache buster
 cache_key = datetime.now().strftime("%Y%m%d%H%M%S")
+
+# ===== CSS =====
 st.markdown(f"""
 <style>
-/* Cache: {cache_key} */
+/* Cache buster: {cache_key} */
 
-/* APP BACKGROUND */
+/* ---- App shell ---- */
 .stApp {{
     background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%) !important;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    color: #000000 !important;
 }}
 
-/* ALL TEXT BLACK */
-.stApp * {{ color: #000000 !important; }}
-.stApp :is(p, span, label, div, small, li, a) {{ color: #000000 !important; }}
+/* Make almost all text black */
+.stApp :is(p, span, label, div, small, li, a, h1, h2, h3, h4, h5, h6) {{
+    color: #000000 !important;
+}}
 
-/* HEADINGS */
-h1 {{ font-size: 2.3rem !important; font-weight: 800 !important; margin: 0 !important; }}
-h2 {{ font-size: 1.6rem !important; font-weight: 700 !important; margin: 0.2rem 0 !important; }}
-h3 {{ font-size: 1.3rem !important; font-weight: 650 !important; margin: 0.1rem 0 !important; }}
+/* Headings */
+h1 {{ font-size: 2.3rem !important; font-weight: 800 !important; }}
+h2 {{ font-size: 1.6rem !important; font-weight: 700 !important; }}
+h3 {{ font-size: 1.3rem !important; font-weight: 650 !important; }}
 
-/* TOP BAR */
+/* ---- Top bar ---- */
 #top-bar {{
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -39,150 +46,209 @@ h3 {{ font-size: 1.3rem !important; font-weight: 650 !important; margin: 0.1rem 
     color: #ffffff !important;
     display: flex;
     align-items: center;
-    padding: 0 12px;
+    padding: 0 18px;
     z-index: 1000;
     font-size: 0.95rem;
-    font-weight: 600;
 }}
 #top-bar * {{ color: #ffffff !important; }}
 
-/* MAIN CONTAINER - TIGHT PADDING */
 .main .block-container {{
-    padding-top: 50px !important;
-    padding-bottom: 0.25rem !important;
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-    max-width: 1320px !important;
-    margin: 0 auto !important;
+    padding-top: 60px !important;
+    max-width: 1200px !important;
 }}
 
-/* SIDEBAR - NO GAPS */
-section[data-testid="stSidebar"] {{
+/* ---- Sidebar ---- */
+section[data-testid="stSidebar"]{{
     background: #f9fafb !important;
     border-right: 1px solid #d4d4d8 !important;
-    padding-top: 0.2rem !important;
-    padding-bottom: 0 !important;
 }}
-section[data-testid="stSidebar"] * {{ color: #111827 !important; }}
+section[data-testid="stSidebar"] * {{
+    color: #111827 !important;
+}}
 
-/* EXPANDERS - TIGHT */
-div[data-testid="stExpander"] {{
-    border-radius: 10px !important;
-    margin: 0.08rem 0 !important;
-    background: rgba(255,255,255,0.95) !important;
-    box-shadow: 0 3px 10px rgba(15,23,42,0.08) !important;
-    border: 1px solid rgba(148,163,184,0.28) !important;
+/* ---- Expander ---- */
+div[data-testid="stExpander"]{{
+    border-radius: 16px !important;
+    margin-bottom: 0.8rem !important;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 6px 18px rgba(15,23,42,0.10) !important;
+    border: 1px solid rgba(148,163,184,0.35) !important;
 }}
-div[data-testid="stExpander"] > details > summary {{
+
+div[data-testid="stExpander"] > details > summary{{
     background: #ffffff !important;
     color: #111827 !important;
-    border-radius: 10px !important;
-    padding: 0.4rem 0.6rem !important;
-    font-weight: 600 !important;
+    border-radius: 16px !important;
+    padding: 0.75rem 1rem !important;
 }}
-div[data-testid="stExpander"] > details > div {{
-    background: rgba(255,255,255,0.95) !important;
-    border-radius: 0 0 10px 10px !important;
-    padding: 0.4rem !important;
+div[data-testid="stExpander"] > details > summary *{{
+    color: #111827 !important;
+}}
+div[data-testid="stExpander"] > details > summary svg{{
+    fill: #111827 !important;
 }}
 
-/* INPUTS */
-input[type="number"], input[type="text"] {{ background-color: #ffffff !important; color: #111827 !important; }}
-[data-baseweb="select"] > div {{ background-color: #ffffff !important; border-radius: 8px !important; border: 1px solid #d4d4d8 !important; color: #111827 !important; }}
+div[data-testid="stExpander"] > details > div{{
+    background: rgba(255,255,255,0.92) !important;
+    border-radius: 0 0 16px 16px !important;
+}}
 
-/* HERO BOX */
+/* ---- Number Input (BMI field) ---- */
+input[type="number"] {{
+    background-color: #ffffff !important;
+    color: #111827 !important;
+}}
+
+/* BMI +/- SPINNER BUTTONS: WHITE TEXT ON DARK BACKGROUND */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {{
+    -webkit-appearance: auto !important;
+    appearance: auto !important;
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+}}
+
+/* ---- Select boxes ---- */
+[data-baseweb="select"] > div {{
+    background-color: #ffffff !important;
+    border-radius: 12px !important;
+    border: 1px solid #d4d4d8 !important;
+    color: #111827 !important;
+}}
+[data-baseweb="popover"] [role="listbox"] {{
+    background-color: #ffffff !important;
+    color: #111827 !important;
+}}
+
+/* ---- Hero ---- */
 .main-hero {{
-    padding: 16px 18px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.85);
-    box-shadow: 0 12px 30px rgba(15,23,42,0.2);
-    border: 1px solid rgba(191,219,254,0.6);
-    backdrop-filter: blur(10px);
-    max-width: 680px;
+    padding: 22px 26px;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.78);
+    box-shadow: 0 20px 45px rgba(15,23,42,0.25);
+    border: 1px solid rgba(148,163,184,0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    max-width: 650px;
     color: #000000 !important;
 }}
 
-/* KPI CARDS - COMPACT */
+/* ---- KPI cards ---- */
 .tall-metric {{
-    background: rgba(255,255,255,0.92);
-    border-radius: 18px;
-    padding: 14px 12px 10px 12px;
-    box-shadow: 0 10px 25px rgba(15,23,42,0.15);
-    border: 1px solid rgba(191,219,254,0.8);
+    background: rgba(255,255,255,0.9);
+    border-radius: 24px;
+    padding: 20px 18px 16px 18px;
+    box-shadow: 0 18px 40px rgba(15,23,42,0.24);
+    border: 1px solid rgba(191,219,254,0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 180px;
+    min-height: 210px;
+    position: relative;
     color: #000000 !important;
 }}
+
 .tall-metric::before {{
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 3px;
-    border-radius: 18px 18px 0 0;
+    height: 5px;
+    border-radius: 24px 24px 0 0;
     background: linear-gradient(90deg, #0ea5e9, #6366f1);
 }}
-.tall-metric-header {{ display: flex; align-items: center; gap: 0.25rem; }}
-.tall-metric-pill {{ width: 24px; height: 24px; border-radius: 999px; background: #e0f2fe; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }}
-.tall-metric-label {{ font-size: 0.95rem !important; color: #111827 !important; font-weight: 600; }}
-.tall-metric-main {{ margin-top: 0.5rem; font-size: 1.8rem; line-height: 1; word-break: break-word; }}
 
-/* RISK COLORS */
+.tall-metric-header {{
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}}
+
+.tall-metric-pill {{
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}}
+
+.tall-metric-label {{ font-size: 1.05rem !important; color: #111827 !important; }}
+
+.tall-metric-main {{
+    margin-top: 0.75rem;
+    font-size: 2.0rem;
+    line-height: 1.1;
+    word-break: break-word;
+}}
+
+/* Risk colors */
 .risk-high {{ color: #b91c1c !important; font-weight: 800; }}
-.risk-med {{ color: #c05621 !important; font-weight: 800; }}
-.risk-low {{ color: #15803d !important; font-weight: 800; }}
+.risk-med  {{ color: #c05621 !important; font-weight: 800; }}
+.risk-low  {{ color: #15803d !important; font-weight: 800; }}
 
-/* COLUMNS - NO GAP */
-.stColumn {{ padding: 0 0.15rem !important; }}
-
-/* TABS - COMPACT */
-.stTabs [data-baseweb="tab-list"] {{ gap: 2px !important; }}
+/* ---- Tabs ---- */
+.stTabs [data-baseweb="tab-list"] {{ gap: 6px !important; }}
 .stTabs [data-baseweb="tab"] {{
     border-radius: 999px !important;
-    padding: 6px 20px !important;
+    padding: 8px 24px !important;
     background: rgba(255,255,255,0.9) !important;
-    border: 1px solid rgba(209,213,219,0.8) !important;
-    font-size: 0.95rem !important;
+    border: 1px solid rgba(209,213,219,0.9) !important;
+    font-size: 1.0rem !important;
     font-weight: 600 !important;
     color: #000000 !important;
 }}
 
-/* CHARTS - TIGHT */
+/* ---- Graphs: Spacing & Size ---- */
 [data-testid="stPlotlyContainer"] {{
-    margin: 0.4rem 0 !important;
-    padding: 0.3rem 0 !important;
+    margin-bottom: 2rem !important;
+    padding: 1rem 0 !important;
 }}
-.plotly-graph-div {{ max-height: 320px !important; }}
 
-/* DATAFRAME */
+.plotly-graph-div {{
+    max-height: 350px !important;
+}}
+
+/* ---- Dataframe ---- */
 [data-testid="stDataFrame"] {{
-    border-radius: 12px !important;
+    border-radius: 14px !important;
     overflow: hidden;
-    box-shadow: 0 6px 18px rgba(15,23,42,0.15) !important;
+    box-shadow: 0 10px 28px rgba(15,23,42,0.22) !important;
     background-color: #ffffff !important;
-    margin: 0.5rem 0 !important;
+    margin: 1.5rem 0 !important;
 }}
 
-/* BUTTONS */
-.stButton>button {{ border-radius: 999px !important; padding: 0.5rem 1.2rem !important; font-weight: 600 !important; background: linear-gradient(135deg, #0ea5e9, #2563eb) !important; color: #ffffff !important; }}
+/* ---- Buttons ---- */
+.stButton>button, .stDownloadButton>button {{
+    border-radius: 999px !important;
+    padding: 0.6rem 1.5rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    background: linear-gradient(135deg, #0ea5e9, #2563eb) !important;
+    color: #ffffff !important;
+}}
 
-/* ALERTS */
-.stAlert, .stSuccess, .stInfo, .stWarning, .stError {{ color: #111827 !important; margin: 0.3rem 0 !important; }}
+.stButton>button:hover {{ filter: brightness(1.06); }}
 
-/* DIVIDER */
-hr {{ margin: 0.4rem 0 !important; }}
+/* ---- Success/Info/Warning boxes ---- */
+.stAlert, .stSuccess, .stInfo, .stWarning, .stError {{
+    color: #111827 !important;
+}}
 
-/* NO GAP AFTER TITLE */
-.stTitle {{ margin-bottom: 0 !important; }}
-.stCaption {{ margin-top: 0.1rem !important; margin-bottom: 0.2rem !important; }}
-
+/* ---- Column spacing ---- */
+.stColumn {{
+    padding: 0 0.5rem !important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<div id='top-bar'>⚕️ Diabetes Risk Intelligence Dashboard</div>", unsafe_allow_html=True)
+st.markdown("<div id='top-bar'>Diabetes Prediction Dashboard</div>", unsafe_allow_html=True)
 
-# ===== MODEL TRAINING =====
+# ===== MODEL =====
 @st.cache_data
 def train_model():
     np.random.seed(42)
@@ -199,15 +265,30 @@ def train_model():
         "Smoker": np.random.binomial(1, 0.2, n),
     })
     y = (
-        (data["BMI"] > 30) * 0.5 + (data["HighBP"]) * 0.3 +
-        (data["GenHlth"] > 3) * 0.25 + (data["Smoker"]) * 0.15 +
-        np.random.normal(0, 0.2, n)
+        (data["BMI"] > 30) * 0.5
+        + (data["HighBP"]) * 0.3
+        + (data["GenHlth"] > 3) * 0.25
+        + (data["Smoker"]) * 0.15
+        + np.random.normal(0, 0.2, n)
     ).clip(0, 1)
     y = (np.random.random(n) < y).astype(int)
 
     scaler = StandardScaler()
-    X = scaler.fit_transform(data[["HighBP", "HighChol", "BMI", "Age", "GenHlth", 
-                                   "PhysHlth", "MentHlth", "PhysActivity", "Smoker"]])
+    X = scaler.fit_transform(
+        data[
+            [
+                "HighBP",
+                "HighChol",
+                "BMI",
+                "Age",
+                "GenHlth",
+                "PhysHlth",
+                "MentHlth",
+                "PhysActivity",
+                "Smoker",
+            ]
+        ]
+    )
     model = LogisticRegression(max_iter=500).fit(X, y)
     return model, scaler
 
@@ -218,56 +299,71 @@ AGE_OPTS = {i: f"Age {18+((i-1)*5)}-{22+((i-1)*5)}" for i in range(1, 14)}
 AGE_OPTS[13] = "Age 80+"
 
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/2966/2966327.png", width=70)
+    st.image("https://cdn-icons-png.flaticon.com/512/2966/2966327.png", width=80)
     st.title("Patient Profile")
-    st.caption("Complete profile for personalized risk screening.")
+    st.caption("Fill in the profile to generate a personalized diabetes risk screen.")
 
     with st.expander("👤 Demographics", expanded=True):
-        age = st.selectbox("Age Group", list(AGE_OPTS.keys()), 
-                          format_func=lambda x: AGE_OPTS[x], index=8)
+        age = st.selectbox(
+            "Age Group",
+            list(AGE_OPTS.keys()),
+            format_func=lambda x: AGE_OPTS[x],
+            index=8,
+        )
         sex = st.radio("Sex", ["Female", "Male"], horizontal=True)
         income = st.select_slider("Income (1–8)", range(1, 9), 5)
 
     with st.expander("🩺 Clinical Metrics", expanded=True):
         bmi = st.slider("BMI", 10.0, 60.0, 25.5, 0.1)
         gen_hlth = st.select_slider("General Health (1–5)", range(1, 6), 3)
-        high_bp = st.checkbox("High Blood Pressure", False)
-        high_chol = st.checkbox("High Cholesterol", False)
+        high_bp = st.checkbox("High Blood Pressure")
+        high_chol = st.checkbox("High Cholesterol")
         phys_hlth = st.slider("Physical Health Days (0–30)", 0, 30, 0)
 
     with st.expander("🧠 Mental Health", expanded=False):
         ment_hlth = st.slider("Mental Health Days (0–30)", 0, 30, 0)
 
-    with st.expander("🌱 Lifestyle", expanded=False):
+    with st.expander("🌱 Lifestyle & History", expanded=False):
         phys_act = st.checkbox("Physically Active (150+ min/week)", True)
-        smoker = st.checkbox("Current Smoker", False)
-        stroke = st.checkbox("Stroke History", False)
-        heart = st.checkbox("Heart Disease", False)
+        smoker = st.checkbox("Current Smoker")
+        stroke = st.checkbox("Stroke History")
+        heart = st.checkbox("Heart Disease")
 
-# ===== HERO SECTION =====
-st.success("✅ ML Model Active | Real-time Risk Assessment")
-hero_left, hero_right = st.columns([2.2, 1], gap="small")
+# ===== HERO =====
+st.success("✅ Advanced ML model trained | Diabetes Risk Screening")
+
+hero_left, hero_right = st.columns([2.2, 1])
 
 with hero_left:
     st.markdown(
         """
         <div class="main-hero">
-            <h1>⚕️ Diabetes Risk Intelligence</h1>
-            <p style="margin:0.2rem 0 0 0;font-size:0.95rem;">
-                Intelligent screening using <strong>9 CDC indicators</strong>.
-                Educational capstone – not medical diagnosis.
+            <h1 style="margin-bottom:0.2rem;">⚕️ Diabetes Prediction Dashboard</h1>
+            <p style="margin-top:0.3rem;font-size:1.0rem;">
+                Intelligent diabetes <strong>risk screening</strong> using lifestyle and clinical indicators.
+                Educational capstone project – not a diagnostic tool.
             </p>
         </div>
-        """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
 with hero_right:
-    st.metric("Standard", "CDC BRFSS", delta=None)
+    st.metric("Screening Focus", "Type 2 Diabetes", "Risk stratification")
 
-# ===== PREDICTION =====
+st.markdown("")
+
+# ===== INFERENCE =====
 input_data = {
-    "HighBP": int(high_bp), "HighChol": int(high_chol), "BMI": bmi,
-    "Age": age, "GenHlth": gen_hlth, "PhysHlth": phys_hlth,
-    "MentHlth": ment_hlth, "PhysActivity": int(phys_act), "Smoker": int(smoker)
+    "HighBP": int(high_bp),
+    "HighChol": int(high_chol),
+    "BMI": bmi,
+    "Age": age,
+    "GenHlth": gen_hlth,
+    "PhysHlth": phys_hlth,
+    "MentHlth": ment_hlth,
+    "PhysActivity": int(phys_act),
+    "Smoker": int(smoker),
 }
 
 X = pd.DataFrame([input_data])
@@ -278,159 +374,247 @@ pred_class = model.predict(X_scaled)[0]
 if prob < 0.20:
     color_class, label = "risk-low", "LOW RISK ✅"
 elif prob < 0.45:
-    color_class, label = "risk-med", "MODERATE ⚠️"
+    color_class, label = "risk-med", "MODERATE RISK ⚠️"
 else:
     color_class, label = "risk-high", "HIGH RISK 🔴"
 
 # ===== KPI CARDS =====
-c1, c2, c3, c4 = st.columns(4, gap="small")
+c1, c2, c3, c4 = st.columns(4)
 
 with c1:
-    st.markdown(f"""
-    <div class="tall-metric">
-        <div class="tall-metric-header">
-            <div class="tall-metric-pill">📊</div>
-            <div class="tall-metric-label">Risk Score</div>
+    st.markdown(
+        f"""
+        <div class="tall-metric">
+            <div class="tall-metric-header">
+                <div class="tall-metric-pill">📊</div>
+                <div class="tall-metric-label">Risk Score</div>
+            </div>
+            <div class="tall-metric-main {color_class}">
+                {prob:.1%}
+            </div>
         </div>
-        <div class="tall-metric-main {color_class}">{prob:.1%}</div>
-    </div>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
 with c2:
-    st.markdown(f"""
-    <div class="tall-metric">
-        <div class="tall-metric-header">
-            <div class="tall-metric-pill">🧬</div>
-            <div class="tall-metric-label">Prediction</div>
+    st.markdown(
+        f"""
+        <div class="tall-metric">
+            <div class="tall-metric-header">
+                <div class="tall-metric-pill">🧬</div>
+                <div class="tall-metric-label">Prediction</div>
+            </div>
+            <div class="tall-metric-main">
+                {"Non‑Diabetic" if pred_class == 0 else "Diabetic"}
+            </div>
         </div>
-        <div class="tall-metric-main">{"Diabetic" if pred_class == 1 else "Non-Diabetic"}</div>
-    </div>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
 with c3:
-    st.markdown(f"""
-    <div class="tall-metric">
-        <div class="tall-metric-header">
-            <div class="tall-metric-pill">⚠️</div>
-            <div class="tall-metric-label">Risk Level</div>
+    st.markdown(
+        f"""
+        <div class="tall-metric">
+            <div class="tall-metric-header">
+                <div class="tall-metric-pill">⚠️</div>
+                <div class="tall-metric-label">Risk Level</div>
+            </div>
+            <div class="tall-metric-main {color_class}">
+                {label}
+            </div>
         </div>
-        <div class="tall-metric-main {color_class}">{label}</div>
-    </div>
-    """, unsafe_home_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
 with c4:
     confidence = max(prob, 1 - prob)
-    st.markdown(f"""
-    <div class="tall-metric">
-        <div class="tall-metric-header">
-            <div class="tall-metric-pill">🎯</div>
-            <div class="tall-metric-label">Confidence</div>
+    st.markdown(
+        f"""
+        <div class="tall-metric">
+            <div class="tall-metric-header">
+                <div class="tall-metric-pill">🎯</div>
+                <div class="tall-metric-label">Model Confidence</div>
+            </div>
+            <div class="tall-metric-main">
+                {confidence:.1%}
+            </div>
+            <div style="font-size:0.9rem;margin-top:0.4rem;">
+                Higher values mean more certain predictions.
+            </div>
         </div>
-        <div class="tall-metric-main">{confidence:.1%}</div>
-        <div style="font-size:0.8rem;margin-top:0.2rem;color:#666;">Higher = more certain</div>
-    </div>
-    """, unsafe_allow_html=True)
+        """,
+        unsafe_allow_html=True,
+    )
 
 st.divider()
 
 # ===== TABS =====
-tab1, tab2, tab3 = st.tabs(["📊 Risk Visualization", "🔍 Profile Analysis", "💡 Recommendations"])
+tab1, tab2, tab3 = st.tabs(["📊 Risk Overview", "🔍 Health Profile", "🛡️ Recommendations"])
 
 with tab1:
-    col1, col2 = st.columns([1.2, 1], gap="small")
+    col1, col2 = st.columns([1.2, 1.3], gap="medium")
+
     with col1:
         st.subheader("Probability Distribution")
-        fig_gauge = go.Figure(go.Indicator(
-            mode="gauge+number", value=prob*100, title={"text": "Diabetes Risk %"},
-            gauge={
-                "axis": {"range": [0, 100]},
-                "steps": [{"range": [0,20],"color":"#dcfce7"}, 
-                         {"range": [20,45],"color":"#fef9c3"},
-                         {"range": [45,100],"color":"#fee2e2"}],
-                "threshold": {"line": {"color": "red", "width": 4}, "value": 50}
-            }
-        ))
-        fig_gauge.update_layout(height=280, margin=dict(l=5,r=5,t=30,b=5), 
-                               paper_bgcolor="rgba(0,0,0,0)", font={"color":"#111827"})
+        fig_gauge = go.Figure(
+            go.Indicator(
+                mode="gauge+number",
+                value=prob * 100,
+                title={"text": "Diabetes Risk %"},
+                gauge={
+                    "axis": {"range": [0, 100]},
+                    "steps": [
+                        {"range": [0, 20], "color": "#dcfce7"},
+                        {"range": [20, 45], "color": "#fef9c3"},
+                        {"range": [45, 100], "color": "#fee2e2"},
+                    ],
+                    "threshold": {"line": {"color": "red", "width": 4}, "thickness": 0.75, "value": 50},
+                },
+            )
+        )
+        fig_gauge.update_layout(
+            height=280,
+            margin=dict(l=10, r=10, t=40, b=10),
+            paper_bgcolor="rgba(0,0,0,0)",
+            font=dict(size=12, color="#111827"),
+        )
         st.plotly_chart(fig_gauge, use_container_width=True)
 
     with col2:
-        st.subheader("Risk Factors")
-        risk_df = pd.DataFrame({
-            "Factor": ["BMI", "Age", "GenHlth", "PhysHlth", "Smoker"],
-            "Impact": [bmi/60, age/13, gen_hlth/5, phys_hlth/30, int(smoker)*0.5]
-        })
-        fig_bar = px.bar(risk_df.sort_values("Impact"), x="Impact", y="Factor", 
-                        orientation="h", title="Contributions")
-        fig_bar.update_layout(height=280, margin=dict(l=5,r=5,t=30,b=5), 
-                             paper_bgcolor="rgba(0,0,0,0)", font={"color":"#111827"})
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.subheader("Risk Factor Contribution")
+        risk_drivers = pd.DataFrame(
+            {
+                "Factor": ["BMI", "Age", "Gen Health", "Phys Health", "Smoking"],
+                "Impact": [bmi / 60, age / 13, gen_hlth / 5, phys_hlth / 30, int(smoker) * 0.5],
+            }
+        )
+        st.bar_chart(risk_drivers.set_index("Factor"), height=280)
+
+    st.markdown("*Note: Factor 'Impact' is a simplified score for illustration, not a calibrated clinical measure.*")
+    st.markdown("")
 
 with tab2:
-    col1, col2, col3 = st.columns(3, gap="small")
-    with col1:
-        st.metric("🏋️ Phys Health", f"{30-phys_hlth}/30 good")
-    with col2:
-        st.metric("🧠 Ment Health", f"{30-ment_hlth}/30 good")
-    with col3:
-        st.metric("⚡ Activity", "Active ✓" if phys_act else "⚠️")
+    st.subheader("Health Profile Analysis")
+    score_col1, score_col2, score_col3 = st.columns(3)
 
-    st.divider()
-    st.subheader("Clinical Stratification")
-    risk_table = pd.DataFrame({
-        "Parameter": ["BMI", "BP", "Health", "Activity", "Smoker"],
-        "Status": [f"{bmi:.0f}" + (" 🔴" if bmi>=30 else " 🟡" if bmi>=25 else " 🟢"),
-                  "High 🔴" if high_bp else "Normal 🟢",
-                  ["Poor","Fair","Good","VG","Excel"][gen_hlth-1],
-                  "Active 🟢" if phys_act else "⚠️",
-                  "Yes 🔴" if smoker else "No 🟢"],
-        "Risk": ["High" if bmi>=30 else "Med" if bmi>=25 else "Low",
+    with score_col1:
+        st.metric("🏋️ Physical Health", f"{30 - phys_hlth}/30 good days", delta=f"{phys_hlth} days limited")
+
+    with score_col2:
+        st.metric("🧠 Mental Health", f"{30 - ment_hlth}/30 good days", delta=f"{ment_hlth} days affected")
+
+    with score_col3:
+        activity_score = 10 if phys_act else 3
+        st.metric("⚡ Activity Level", f"{activity_score}/10", delta="Active" if phys_act else "Sedentary")
+
+    st.markdown("---")
+    st.subheader("Clinical Risk Stratification")
+
+    risk_table = pd.DataFrame(
+        {
+            "Parameter": ["BMI Category", "BP Status", "Health Status", "Activity Status", "Smoking Status"],
+            "Current": [
+                f"{bmi:.1f} ({'Obese' if bmi >= 30 else 'Overweight' if bmi >= 25 else 'Healthy'})",
+                "Elevated" if high_bp else "Normal",
+                ["Excellent", "Very Good", "Good", "Fair", "Poor"][gen_hlth - 1],
+                "Active" if phys_act else "Inactive",
+                "Smoker" if smoker else "Non-smoker",
+            ],
+            "Risk Impact": [
+                "High" if bmi >= 30 else "Medium" if bmi >= 25 else "Low",
                 "High" if high_bp else "Low",
-                "High" if gen_hlth>=4 else "Low",
+                "High" if gen_hlth >= 4 else "Low",
                 "Low" if phys_act else "High",
-                "High" if smoker else "Low"]
-    })
+                "High" if smoker else "Low",
+            ],
+        }
+    )
     st.dataframe(risk_table, use_container_width=True, hide_index=True)
 
 with tab3:
-    st.subheader("Personalized Recommendations")
-    c1, c2, c3 = st.columns(3, gap="small")
+    st.subheader("Personalized Health Recommendations")
 
-    with c1:
+    c1_rec, c2_rec, c3_rec = st.columns(3)
+
+    with c1_rec:
         if bmi > 25:
-            st.warning("**🟡 Weight Management**\n\n• Target 5-10% loss\n• 150min exercise/week\n• Balanced diet")
+            st.warning(
+                "**Weight Management**\n\n"
+                "• Aim for 5–10% weight loss\n"
+                "• Gradual change over 3–6 months\n"
+                "• Combine nutrition + activity"
+            )
         else:
-            st.success("**🟢 Healthy BMI**\n\n• Maintain range\n• Regular activity")
+            st.success(
+                "**Healthy BMI**\n\n"
+                "• Maintain current range\n"
+                "• Balanced diet and regular movement"
+            )
 
-    with c2:
+    with c2_rec:
         if high_bp or high_chol:
-            st.error("**🔴 Clinical Screening**\n\n• HbA1c test\n• BP/lipid follow-up\n• Physician consult")
+            st.error(
+                "**Clinical Screening**\n\n"
+                "• Fasting glucose test\n"
+                "• HbA1c testing\n"
+                "• Regular blood pressure & lipid follow-up"
+            )
         else:
-            st.success("**🟢 Vitals Good**\n\n• Annual checkups\n• Monitor periodically")
+            st.success(
+                "**Vitals Within Range**\n\n"
+                "• Continue annual check-ups\n"
+                "• Track blood pressure & lipids periodically"
+            )
 
-    with c3:
+    with c3_rec:
         if not phys_act:
-            st.info("**🟡 Increase Activity**\n\n• 30min walk/day\n• Build to 150min/week\n• Add strength 2x/week")
+            st.info(
+                "**Increase Activity**\n\n"
+                "• Start with 30 minutes brisk walk/day\n"
+                "• Progress towards 150 minutes/week\n"
+                "• Add light strength training twice/week"
+            )
         else:
-            st.success("**🟢 Active Lifestyle**\n\n• Maintain level\n• Strength training")
+            st.success(
+                "**Active Lifestyle**\n\n"
+                "• Maintain activity level\n"
+                "• Consider structured strength training"
+            )
 
-    if ment_hlth > 14:
-        st.warning(f"🧠 **Mental Health**: {ment_hlth} poor days/month → Seek support")
+    if ment_hlth > 15:
+        st.warning(
+            f"⚠️ **Mental Health Alert**: {ment_hlth} days of poor mental health in last month. "
+            "Consider speaking with a mental health professional."
+        )
 
-    with st.expander("🔬 Advanced Insights"):
-        st.write(f"""
-        **Model Confidence**: {confidence:.1%}
-        **Risk Bands**: LOW (0-20%) | MODERATE (20-45%) | HIGH (45%+)
-        """)
+    with st.expander("🔬 Advanced Model Insights", expanded=False):
+        st.write(
+            f"""
+            **Model Confidence**: {max(prob, 1 - prob):.1%}
+
+            **Risk Bands (Educational)**:
+            - LOW: 0–25% — Healthy population range  
+            - MODERATE: 25–50% — Elevated risk, lifestyle optimisation  
+            - HIGH: 50%+ — Discuss with clinician, possible further testing  
+            """
+        )
 
 st.divider()
-st.markdown("""
-<div style='background:#e0f2fe;border-left:4px solid #0284c7;padding:12px;border-radius:8px;margin:0.5rem 0;'>
-<h4 style='margin:0;color:#0c4a6e;'>⚠️ Medical Disclaimer</h4>
-<p style='margin:0.3rem 0 0 0;font-size:0.9rem;color:#111827;'>
-<strong>Educational prototype only.</strong> Not a medical diagnosis. Consult healthcare professionals.
-</p>
-</div>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <div style='background-color: #e0f2fe; border-left: 5px solid #0284c7;
+                padding: 15px; border-radius: 10px; margin: 20px 0;'>
+        <h3 style='margin-top: 0;'>⚠️ Medical Disclaimer</h3>
+        <p style='margin-bottom: 0;'>
+        <strong>This tool provides statistical risk estimates only and is NOT a medical diagnosis.
+        Always consult a qualified healthcare professional for actual diagnosis and treatment.</strong>
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-st.caption("🎓 UE Capstone | EBTM 881 | Diabetes Risk Intelligence Dashboard")
+st.caption("🎓 University of Europe Capstone · Educational Screening Tool") 

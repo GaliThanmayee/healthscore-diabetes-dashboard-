@@ -649,4 +649,4 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.caption("🎓 University of Europe Capstone · Educational Screening Tool") the text is not perfectly aligned the page is also not fitted
+st.caption("🎓 University of Europe Capstone · Educational Screening Tool") 

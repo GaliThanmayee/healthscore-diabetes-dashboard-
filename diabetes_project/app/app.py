@@ -4,134 +4,125 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 import plotly.graph_objects as go
+from datetime import datetime
+
 st.set_page_config(
-    page_title="Diabetes Risk Prediction Dashboard",
+    page_title="Diabetes Prediction Dashboard",
     page_icon="⚕️",
     layout="wide"
 )
 
+# Cache buster
+cache_key = datetime.now().strftime("%Y%m%d%H%M%S")
 
-st.markdown("""
+# ===== CSS =====
+st.markdown(f"""
 <style>
-* { font-size: 0.75rem !important; }
-h1 { font-size: 1.1rem !important; }
-h2 { font-size: 1.0rem !important; }
-.tall-metric { 
-    padding: 12px 10px !important;
-    min-height: 140px !important;
-}
-.tall-metric-main { font-size: 1.4rem !important; }
-.main .block-container { max-width: 1000px !important; }
-</style>
-""", unsafe_allow_html=True)
+/* Cache buster: {cache_key} */
 
-
-
-st.markdown("""
-<style>
-/* ===== GLOBAL ===== */
-.stApp {
-    /* clean gradient background, no photo */
-    background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%);
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-}
-
-/* Bigger, dark text everywhere */
-html, body, div, span, label, p, h1, h2, h3, h4, h5, h6 {
+/* ---- App shell ---- */
+.stApp {{
+    background: radial-gradient(circle at top left, #e0f2fe 0, #e5e7eb 45%, #f9fafb 100%) !important;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
     color: #000000 !important;
-}
-html, body, [class*="css"] {
-    font-size: 19px !important;
-}
+}}
 
-/* Stronger headings */
-h1 {
-    font-size: 2.3rem !important;
-    font-weight: 800 !important;
-}
-h2 {
-    font-size: 1.7rem !important;
-    font-weight: 700 !important;
-}
-h3 {
-    font-size: 1.4rem !important;
-    font-weight: 650 !important;
-}
+/* Make almost all text black */
+.stApp :is(p, span, label, div, small, li, a, h1, h2, h3, h4, h5, h6) {{
+    color: #000000 !important;
+}}
 
-/* ===== TOP BAR ===== */
-#top-bar {
+/* Headings */
+h1 {{ font-size: 2.3rem !important; font-weight: 800 !important; }}
+h2 {{ font-size: 1.6rem !important; font-weight: 700 !important; }}
+h3 {{ font-size: 1.3rem !important; font-weight: 650 !important; }}
+
+/* ---- Top bar ---- */
+#top-bar {{
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 40px;
-    background: linear-gradient(90deg, #0ea5e9, #2563eb);
-    color: #ffffff;
+    background: linear-gradient(90deg, #0ea5e9, #2563eb) !important;
+    color: #ffffff !important;
     display: flex;
     align-items: center;
     padding: 0 18px;
     z-index: 1000;
     font-size: 0.95rem;
-}
-.main .block-container {
-    padding-top: 60px;  /* push content below top bar */
-}
+}}
+#top-bar * {{ color: #ffffff !important; }}
 
-/* ===== SIDEBAR (Patient Profile) ===== */
-section[data-testid="stSidebar"] {
-    background: #f9fafb;
-    border-right: 1px solid #d4d4d8;
-}
-section[data-testid="stSidebar"] h1 {
-    font-size: 1.5rem !important;
-}
-section[data-testid="stSidebar"] label {
-    font-size: 1.05rem !important;
-}
+.main .block-container {{
+    padding-top: 60px !important;
+    max-width: 1200px !important;
+}}
 
-/* Expander boxes: soft card */
-div[data-testid="stExpander"] {
-    border-radius: 16px;
-    margin-bottom: 0.8rem;
-    background: rgba(255,255,255,0.9);
-    box-shadow: 0 6px 18px rgba(15,23,42,0.12);
-    border: 1px solid rgba(148,163,184,0.4);
-}
-div[data-testid="stExpander"] > details > summary {
-    color: #000000 !important;
-    font-size: 1.05rem !important;
-}
+/* ---- Sidebar ---- */
+section[data-testid="stSidebar"]{{
+    background: #f9fafb !important;
+    border-right: 1px solid #d4d4d8 !important;
+}}
+section[data-testid="stSidebar"] * {{
+    color: #111827 !important;
+}}
 
-/* Force light selectbox + dropdown options */
-[data-baseweb="select"] > div {
+/* ---- Expander ---- */
+div[data-testid="stExpander"]{{
+    border-radius: 16px !important;
+    margin-bottom: 0.8rem !important;
+    background: rgba(255,255,255,0.92) !important;
+    box-shadow: 0 6px 18px rgba(15,23,42,0.10) !important;
+    border: 1px solid rgba(148,163,184,0.35) !important;
+}}
+
+div[data-testid="stExpander"] > details > summary{{
+    background: #ffffff !important;
+    color: #111827 !important;
+    border-radius: 16px !important;
+    padding: 0.75rem 1rem !important;
+}}
+div[data-testid="stExpander"] > details > summary *{{
+    color: #111827 !important;
+}}
+div[data-testid="stExpander"] > details > summary svg{{
+    fill: #111827 !important;
+}}
+
+div[data-testid="stExpander"] > details > div{{
+    background: rgba(255,255,255,0.92) !important;
+    border-radius: 0 0 16px 16px !important;
+}}
+
+/* ---- Number Input (BMI field) ---- */
+input[type="number"] {{
     background-color: #ffffff !important;
-    color: #000000 !important;
+    color: #111827 !important;
+}}
+
+/* BMI +/- SPINNER BUTTONS: WHITE TEXT ON DARK BACKGROUND */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {{
+    -webkit-appearance: auto !important;
+    appearance: auto !important;
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+}}
+
+/* ---- Select boxes ---- */
+[data-baseweb="select"] > div {{
+    background-color: #ffffff !important;
     border-radius: 12px !important;
     border: 1px solid #d4d4d8 !important;
-}
-[data-baseweb="select"] span {
-    color: #000000 !important;
-}
-[data-baseweb="popover"] [role="listbox"] {
+    color: #111827 !important;
+}}
+[data-baseweb="popover"] [role="listbox"] {{
     background-color: #ffffff !important;
-    color: #000000 !important;
-}
-[data-baseweb="popover"] [role="option"] {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-}
-[data-baseweb="popover"] [role="option"]:hover {
-    background-color: #e5f0ff !important;
-}
+    color: #111827 !important;
+}}
 
-/* Number input */
-input[type="number"] {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-}
-
-/* ===== HERO (glassmorphism style) ===== */
-.main-hero {
+/* ---- Hero ---- */
+.main-hero {{
     padding: 22px 26px;
     border-radius: 22px;
     background: rgba(255,255,255,0.78);
@@ -139,14 +130,15 @@ input[type="number"] {
     border: 1px solid rgba(148,163,184,0.55);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    max-width: 650px;
     color: #000000 !important;
-}
+}}
 
-/* ===== KPI CARDS (glass cards with icons + top strip) ===== */
-.tall-metric {
-    background: rgba(255,255,255,0.82);
+/* ---- KPI cards ---- */
+.tall-metric {{
+    background: rgba(255,255,255,0.9);
     border-radius: 24px;
-    padding: 24px 20px 18px 20px;
+    padding: 20px 18px 16px 18px;
     box-shadow: 0 18px 40px rgba(15,23,42,0.24);
     border: 1px solid rgba(191,219,254,0.9);
     backdrop-filter: blur(10px);
@@ -154,30 +146,27 @@ input[type="number"] {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 220px;
-    color: #000000 !important;
+    min-height: 210px;
     position: relative;
-}
+    color: #000000 !important;
+}}
 
-/* Colored strip on top of each KPI card */
-.tall-metric::before {
+.tall-metric::before {{
     content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    top: 0; left: 0; right: 0;
     height: 5px;
     border-radius: 24px 24px 0 0;
     background: linear-gradient(90deg, #0ea5e9, #6366f1);
-}
+}}
 
-/* Header row with icon + label */
-.tall-metric-header {
+.tall-metric-header {{
     display: flex;
     align-items: center;
     gap: 0.4rem;
-}
-.tall-metric-pill {
+}}
+
+.tall-metric-pill {{
     width: 28px;
     height: 28px;
     border-radius: 999px;
@@ -186,65 +175,80 @@ input[type="number"] {
     align-items: center;
     justify-content: center;
     font-size: 0.9rem;
-}
-.tall-metric-label {
-    font-size: 1.1rem !important;
-    color: #111827 !important;
-}
-.tall-metric-main {
+}}
+
+.tall-metric-label {{ font-size: 1.05rem !important; color: #111827 !important; }}
+
+.tall-metric-main {{
     margin-top: 0.75rem;
-    font-size: 2.4rem !important;
-}
+    font-size: 2.0rem;
+    line-height: 1.1;
+    word-break: break-word;
+}}
 
-/* Risk colors as accents only */
-.risk-high { color: #b91c1c !important; font-weight: 800; }
-.risk-med  { color: #c05621 !important; font-weight: 800; }
-.risk-low  { color: #15803d !important; font-weight: 800; }
+/* Risk colors */
+.risk-high {{ color: #b91c1c !important; font-weight: 800; }}
+.risk-med  {{ color: #c05621 !important; font-weight: 800; }}
+.risk-low  {{ color: #15803d !important; font-weight: 800; }}
 
-/* ===== TABS ===== */
-.stTabs [data-baseweb="tab-list"] { gap: 6px; }
-.stTabs [data-baseweb="tab"] {
-    border-radius: 999px;
-    padding: 8px 24px;
-    background: rgba(255,255,255,0.9);
-    border: 1px solid rgba(209,213,219,0.9);
-    color: #000000 !important;
-    font-size: 1.05rem !important;
+/* ---- Tabs ---- */
+.stTabs [data-baseweb="tab-list"] {{ gap: 6px !important; }}
+.stTabs [data-baseweb="tab"] {{
+    border-radius: 999px !important;
+    padding: 8px 24px !important;
+    background: rgba(255,255,255,0.9) !important;
+    border: 1px solid rgba(209,213,219,0.9) !important;
+    font-size: 1.0rem !important;
     font-weight: 600 !important;
-}
-
-/* ===== DATAFRAME ===== */
-[data-testid="stDataFrame"] {
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 10px 28px rgba(15,23,42,0.22);
-    background-color: #ffffff;
-}
-
-/* ===== BUTTONS ===== */
-.stButton>button, .stDownloadButton>button {
-    border-radius: 999px;
-    padding: 0.6rem 1.5rem;
-    font-weight: 600;
-    border: none;
-    background: linear-gradient(135deg, #0ea5e9, #2563eb);
-    color: #ffffff;
-}
-.stButton>button:hover {
-    filter: brightness(1.06);
-}
-
-/* ===== CAPTION ===== */
-footer, .stCaption {
-    font-size: 0.9rem !important;
     color: #000000 !important;
-}
+}}
+
+/* ---- Graphs: Spacing & Size ---- */
+[data-testid="stPlotlyContainer"] {{
+    margin-bottom: 2rem !important;
+    padding: 1rem 0 !important;
+}}
+
+.plotly-graph-div {{
+    max-height: 350px !important;
+}}
+
+/* ---- Dataframe ---- */
+[data-testid="stDataFrame"] {{
+    border-radius: 14px !important;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(15,23,42,0.22) !important;
+    background-color: #ffffff !important;
+    margin: 1.5rem 0 !important;
+}}
+
+/* ---- Buttons ---- */
+.stButton>button, .stDownloadButton>button {{
+    border-radius: 999px !important;
+    padding: 0.6rem 1.5rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    background: linear-gradient(135deg, #0ea5e9, #2563eb) !important;
+    color: #ffffff !important;
+}}
+
+.stButton>button:hover {{ filter: brightness(1.06); }}
+
+/* ---- Success/Info/Warning boxes ---- */
+.stAlert, .stSuccess, .stInfo, .stWarning, .stError {{
+    color: #111827 !important;
+}}
+
+/* ---- Column spacing ---- */
+.stColumn {{
+    padding: 0 0.5rem !important;
+}}
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("<div id='top-bar'>Diabetes Prediction Dashboard</div>", unsafe_allow_html=True)
 
-st.markdown("<div id='top-bar'>Diabetes Risk Prediction Dashboard</div>", unsafe_allow_html=True)
-
+# ===== MODEL =====
 @st.cache_data
 def train_model():
     np.random.seed(42)
@@ -290,6 +294,7 @@ def train_model():
 
 model, scaler = train_model()
 
+# ===== SIDEBAR =====
 AGE_OPTS = {i: f"Age {18+((i-1)*5)}-{22+((i-1)*5)}" for i in range(1, 14)}
 AGE_OPTS[13] = "Age 80+"
 
@@ -309,7 +314,7 @@ with st.sidebar:
         income = st.select_slider("Income (1–8)", range(1, 9), 5)
 
     with st.expander("🩺 Clinical Metrics", expanded=True):
-        bmi = st.number_input("BMI", 10.0, 60.0, 25.5, 0.1)
+        bmi = st.slider("BMI", 10.0, 60.0, 25.5, 0.1)
         gen_hlth = st.select_slider("General Health (1–5)", range(1, 6), 3)
         high_bp = st.checkbox("High Blood Pressure")
         high_chol = st.checkbox("High Cholesterol")
@@ -324,8 +329,8 @@ with st.sidebar:
         stroke = st.checkbox("Stroke History")
         heart = st.checkbox("Heart Disease")
 
+# ===== HERO =====
 st.success("✅ Advanced ML model trained | Diabetes Risk Screening")
-
 
 hero_left, hero_right = st.columns([2.2, 1])
 
@@ -333,7 +338,7 @@ with hero_left:
     st.markdown(
         """
         <div class="main-hero">
-            <h1 style="margin-bottom:0.2rem;">⚖️ HealthScore <span style="font-weight:800;">AI</span></h1>
+            <h1 style="margin-bottom:0.2rem;">⚕️ Diabetes Prediction Dashboard</h1>
             <p style="margin-top:0.3rem;font-size:1.0rem;">
                 Intelligent diabetes <strong>risk screening</strong> using lifestyle and clinical indicators.
                 Educational capstone project – not a diagnostic tool.
@@ -348,6 +353,7 @@ with hero_right:
 
 st.markdown("")
 
+# ===== INFERENCE =====
 input_data = {
     "HighBP": int(high_bp),
     "HighChol": int(high_chol),
@@ -360,20 +366,7 @@ input_data = {
     "Smoker": int(smoker),
 }
 
-X = pd.DataFrame(
-    [input_data],
-    columns=[
-        "HighBP",
-        "HighChol",
-        "BMI",
-        "Age",
-        "GenHlth",
-        "PhysHlth",
-        "MentHlth",
-        "PhysActivity",
-        "Smoker",
-    ],
-)
+X = pd.DataFrame([input_data])
 X_scaled = scaler.transform(X)
 prob = model.predict_proba(X_scaled)[0, 1]
 pred_class = model.predict(X_scaled)[0]
@@ -385,6 +378,7 @@ elif prob < 0.45:
 else:
     color_class, label = "risk-high", "HIGH RISK 🔴"
 
+# ===== KPI CARDS =====
 c1, c2, c3, c4 = st.columns(4)
 
 with c1:
@@ -447,7 +441,7 @@ with c4:
             <div class="tall-metric-main">
                 {confidence:.1%}
             </div>
-            <div style="font-size:0.9rem;margin-top:0.4rem;color:#4b5563;">
+            <div style="font-size:0.9rem;margin-top:0.4rem;">
                 Higher values mean more certain predictions.
             </div>
         </div>
@@ -457,10 +451,11 @@ with c4:
 
 st.divider()
 
+# ===== TABS =====
 tab1, tab2, tab3 = st.tabs(["📊 Risk Overview", "🔍 Health Profile", "🛡️ Recommendations"])
 
 with tab1:
-    col1, col2 = st.columns([1, 1.4])
+    col1, col2 = st.columns([1.2, 1.3], gap="medium")
 
     with col1:
         st.subheader("Probability Distribution")
@@ -476,74 +471,51 @@ with tab1:
                         {"range": [20, 45], "color": "#fef9c3"},
                         {"range": [45, 100], "color": "#fee2e2"},
                     ],
-                    "threshold": {
-                        "line": {"color": "red", "width": 4},
-                        "thickness": 0.75,
-                        "value": 50,
-                    },
+                    "threshold": {"line": {"color": "red", "width": 4}, "thickness": 0.75, "value": 50},
                 },
             )
         )
         fig_gauge.update_layout(
-            height=300,
-            margin=dict(l=10, r=10, t=50, b=10),
+            height=280,
+            margin=dict(l=10, r=10, t=40, b=10),
             paper_bgcolor="rgba(0,0,0,0)",
-            font=dict(size=14, color="#111827"),
+            font=dict(size=12, color="#111827"),
         )
         st.plotly_chart(fig_gauge, use_container_width=True)
 
     with col2:
-        st.subheader("Risk Factor Contribution (Heuristic)")
+        st.subheader("Risk Factor Contribution")
         risk_drivers = pd.DataFrame(
             {
                 "Factor": ["BMI", "Age", "Gen Health", "Phys Health", "Smoking"],
                 "Impact": [bmi / 60, age / 13, gen_hlth / 5, phys_hlth / 30, int(smoker) * 0.5],
             }
         )
-        st.bar_chart(risk_drivers.set_index("Factor"), height=300)
+        st.bar_chart(risk_drivers.set_index("Factor"), height=280)
 
-    st.markdown(
-        "*Note: Factor ‘Impact’ is a simplified score for illustration, not a calibrated clinical measure.*"
-    )
+    st.markdown("*Note: Factor 'Impact' is a simplified score for illustration, not a calibrated clinical measure.*")
+    st.markdown("")
 
 with tab2:
     st.subheader("Health Profile Analysis")
     score_col1, score_col2, score_col3 = st.columns(3)
 
     with score_col1:
-        st.metric(
-            "🏋️ Physical Health",
-            f"{30 - phys_hlth}/30 good days",
-            delta=f"{phys_hlth} days limited",
-        )
+        st.metric("🏋️ Physical Health", f"{30 - phys_hlth}/30 good days", delta=f"{phys_hlth} days limited")
 
     with score_col2:
-        st.metric(
-            "🧠 Mental Health",
-            f"{30 - ment_hlth}/30 good days",
-            delta=f"{ment_hlth} days affected",
-        )
+        st.metric("🧠 Mental Health", f"{30 - ment_hlth}/30 good days", delta=f"{ment_hlth} days affected")
 
     with score_col3:
         activity_score = 10 if phys_act else 3
-        st.metric(
-            "⚡ Activity Level",
-            f"{activity_score}/10",
-            delta="Active" if phys_act else "Sedentary",
-        )
+        st.metric("⚡ Activity Level", f"{activity_score}/10", delta="Active" if phys_act else "Sedentary")
 
     st.markdown("---")
     st.subheader("Clinical Risk Stratification")
 
     risk_table = pd.DataFrame(
         {
-            "Parameter": [
-                "BMI Category",
-                "BP Status",
-                "Health Status",
-                "Activity Status",
-                "Smoking Status",
-            ],
+            "Parameter": ["BMI Category", "BP Status", "Health Status", "Activity Status", "Smoking Status"],
             "Current": [
                 f"{bmi:.1f} ({'Obese' if bmi >= 30 else 'Overweight' if bmi >= 25 else 'Healthy'})",
                 "Elevated" if high_bp else "Normal",
@@ -627,20 +599,16 @@ with tab3:
             - LOW: 0–25% — Healthy population range  
             - MODERATE: 25–50% — Elevated risk, lifestyle optimisation  
             - HIGH: 50%+ — Discuss with clinician, possible further testing  
-
-            **Top Risk Drivers (Heuristic)**:
-            1. BMI: {bmi/60:.1%}
-            2. Age: {age/13:.1%}
-            3. General Health: {gen_hlth/5:.1%}
             """
         )
+
 st.divider()
 st.markdown(
     """
     <div style='background-color: #e0f2fe; border-left: 5px solid #0284c7;
                 padding: 15px; border-radius: 10px; margin: 20px 0;'>
-        <h3 style='color: #0f172a; margin-top: 0;'>⚠️ Medical Disclaimer</h3>
-        <p style='color: #0f172a; margin-bottom: 0;'>
+        <h3 style='margin-top: 0;'>⚠️ Medical Disclaimer</h3>
+        <p style='margin-bottom: 0;'>
         <strong>This tool provides statistical risk estimates only and is NOT a medical diagnosis.
         Always consult a qualified healthcare professional for actual diagnosis and treatment.</strong>
         </p>
